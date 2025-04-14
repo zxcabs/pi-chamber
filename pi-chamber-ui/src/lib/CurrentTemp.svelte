@@ -1,8 +1,8 @@
-<script>
+<script lang="ts">
     // Устанавливаем WebSocket соединение
     const socket = new WebSocket(`ws://${window.location.host}/ws`);
 
-    let data = $state([]);
+    let data: string = $state("");
 
     // Обработка входящих сообщений
     socket.addEventListener("message", (event) => {

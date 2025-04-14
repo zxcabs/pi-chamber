@@ -48,6 +48,7 @@ export default class WebServer {
 
     async stop() {
         this.server.closeAllConnections()
+        this.wss.clients.forEach((client) => client.close())
         await callbackAsyncWrapper((handler) => this.server.close(handler))
         this.server = null
         this.wss = null
