@@ -1,6 +1,6 @@
 <script>
     // Устанавливаем WebSocket соединение
-    const socket = new WebSocket(`ws://${window.location.host}`);
+    const socket = new WebSocket(`ws://${window.location.host}/ws`);
 
     let data = $state([]);
 

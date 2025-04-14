@@ -6,7 +6,7 @@ export default defineConfig({
   plugins: [svelte()],
   server: {
     proxy: {
-      '/': {
+      '/ws': {
         target: 'ws://192.168.1.75:3000',
         changeOrigin: true
       },

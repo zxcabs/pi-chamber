@@ -9,5 +9,5 @@ piGpio.start()
 
 process.on('SIGINT', async () => {
     await piGpio.stop()
-    process.exit()
+    process.exit(0)
 })

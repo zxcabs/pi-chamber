@@ -4,4 +4,4 @@
     };
 </script>
 
-<button {onclick}>Reload</button>
+<button {onclick}>Relad</button>

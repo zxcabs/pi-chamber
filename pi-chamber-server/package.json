@@ -1,13 +1,14 @@
 {
   "name": "pi-chamber-server",
   "private": true,
-  "version": "0.0.0",
+  "version": "1.0.0",
   "type": "module",
   "scripts": {
-    "start": "node index.js"
+    "start": "node --env-file=.env --experimental-transform-types --experimental-strip-types index.ts"
   },
-  "devDependencies": {},
   "dependencies": {
+    "@types/express": "^5.0.1",
+    "@types/ws": "^8.18.1",
     "express": "^4.21.2",
     "ws": "^8.18.1"
   }

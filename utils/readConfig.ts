@@ -8,13 +8,23 @@ const generalSchema = z.object({
         required_error: "gpio_server_sock is required",
         invalid_type_error: "gpio_server_sock must be a string"
     }),
+    chamber_temperature_sensors: z.array(z.string())
+}).required()
+
+export type TGeneralConfig = ReadonlyDeep<z.infer<typeof generalSchema>>
+
+const webServerSchema = z.object({
+    port: z.number({
+        required_error: "port is required",
+        invalid_type_error: "port must be a number"
+    }),
     ui_dir: z.string({
         required_error: "ui_dir is required",
         invalid_type_error: "ui_dir must be a string"
     })
-}).required()
+})
 
-export type TGeneralConfig = ReadonlyDeep<z.infer<typeof generalSchema>>
+export type TWebServerConfig = ReadonlyDeep<z.infer<typeof webServerSchema>>
 
 const temperatureSensorSchema = z.object({
     name: z.string({
@@ -36,11 +46,13 @@ export type TTemeperatureSensorsConfig = ReadonlyDeep<z.infer<typeof temperature
 
 const configSchema = z.object({
     general: generalSchema,
+    web_server: webServerSchema,
     temperature_sensors: temperatureSensorsSchema
 });
 
 export type TConfig = ReadonlyDeep<{
     general: TGeneralConfig,
+    web_server: TWebServerConfig,
     temperature_sensors: TTemeperatureSensorsConfig
 }>
 
