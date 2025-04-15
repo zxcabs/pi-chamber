@@ -28,7 +28,8 @@ export type TRsStatusMessagePayload = z.infer<typeof RsStatusPayloadSchema>
 
 export const RsStatusSchema = BaseMessageSchema.extend({
     type: z.literal(TYPES.RS_STATUS),
-}).merge(RsStatusPayloadSchema)
+    payload: RsStatusPayloadSchema,
+})
 
 export type TRSStatusMessage = z.infer<typeof RsStatusSchema>
 

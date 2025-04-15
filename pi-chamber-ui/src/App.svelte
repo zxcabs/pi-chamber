@@ -1,12 +1,11 @@
 <script lang="ts">
-    import Reload from './lib/Reload.svelte'
+    import MainLayout from './ui/MainLayout/MainLayout.svelte'
     import CurrentTemp from './lib/CurrentTemp.svelte'
 </script>
 
-<main>
-    <Reload />
+<MainLayout onreload={() => window.location.reload()}>
     <CurrentTemp />
-</main>
+</MainLayout>
 
 <style>
 </style>

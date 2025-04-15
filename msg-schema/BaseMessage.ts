@@ -7,6 +7,7 @@ export const BaseMessageSchema = z.object({
     }),
     uid: z.string().uuid(),
     timestamp: z.number(),
+    payload: z.object({}).nullable().optional(),
 })
 
 export type TBaseMessage = z.infer<typeof BaseMessageSchema>
@@ -18,12 +19,12 @@ type SchemaWithType<T extends string> = ZodTypeAny & {
 export function createMessage<S extends SchemaWithType<T>, T extends string>(
     schema: S,
     type: T,
-    extendObject = {},
+    payload?: Object | undefined,
 ): z.infer<S> {
     return schema.parse({
         uid: randomUUID(),
         type,
         timestamp: Date.now(),
-        ...extendObject,
+        payload,
     })
 }
