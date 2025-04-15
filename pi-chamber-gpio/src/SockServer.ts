@@ -20,21 +20,21 @@ class SockServer {
             onClientConnect(connection)
 
             connection.on('end', () => {
-                console.log('Client disconnected');
-            });
-        });
+                console.log('Client disconnected')
+            })
+        })
 
-        this.server.on('error', (err) => {
+        this.server.on('error', err => {
             console.error('Server error', err)
-        });
+        })
 
-        await callbackAsyncWrapper((handler) => this.server.listen(this.config.gpio_server_sock, handler))
+        await callbackAsyncWrapper(handler => this.server.listen(this.config.gpio_server_sock, handler))
 
         console.log(`Server listen on ${this.config.gpio_server_sock}`)
     }
 
     async stop(): Promise<void> {
-        await callbackAsyncWrapper((handler) => this.server.close(handler))
+        await callbackAsyncWrapper(handler => this.server.close(handler))
 
         if (existsSync(this.config.gpio_server_sock)) {
             unlinkSync(this.config.gpio_server_sock)

@@ -1,9 +1,9 @@
-import type { TTemeperatureSensorsConfig, TTemeperatureSensorConfig } from "../../utils/readConfig.ts";
-import type { ITemperatureSensor, ITemperatureSensorReadResult } from "./devices/ITemperatureSensor.type.ts";
-import TemperatureSensorMAX31865 from "./devices/TemperatureSensorMAX31865.ts";
+import type { TTemeperatureSensorsConfig, TTemeperatureSensorConfig } from '../../utils/readConfig.ts'
+import type { ITemperatureSensor, ITemperatureSensorReadResult } from './devices/ITemperatureSensor.type.ts'
+import TemperatureSensorMAX31865 from './devices/TemperatureSensorMAX31865.ts'
 
 const SENSORS_TYPE_CONT_MAP = {
-    'MAX31865': TemperatureSensorMAX31865
+    MAX31865: TemperatureSensorMAX31865,
 }
 
 class TemperatureSensors {
@@ -14,7 +14,9 @@ class TemperatureSensors {
             const SensorContructor = SENSORS_TYPE_CONT_MAP[sensorConfig.type]
 
             if (!SensorContructor) {
-                console.error(`Unknown temperature sensor type ${sensorConfig.type} for sensor name ${sensorConfig.name}`)
+                console.error(
+                    `Unknown temperature sensor type ${sensorConfig.type} for sensor name ${sensorConfig.name}`,
+                )
             }
 
             accum.push(new SensorContructor(sensorConfig))
@@ -23,15 +25,15 @@ class TemperatureSensors {
     }
 
     async connect(): Promise<void> {
-        await Promise.all(this.sensors.map((sensor) => sensor.connect()))
+        await Promise.all(this.sensors.map(sensor => sensor.connect()))
     }
 
     async read(): Promise<Array<ITemperatureSensorReadResult>> {
-        return await Promise.all(this.sensors.map((sensor) => sensor.read()))
+        return await Promise.all(this.sensors.map(sensor => sensor.read()))
     }
 
     async release(): Promise<void> {
-        await Promise.all(this.sensors.map((sensor) => sensor.release()))
+        await Promise.all(this.sensors.map(sensor => sensor.release()))
     }
 }
 

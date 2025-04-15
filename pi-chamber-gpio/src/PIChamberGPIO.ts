@@ -1,6 +1,6 @@
 import { type TConfig } from '../../utils/readConfig.ts'
-import TemperatureSensors from "./TemperatureSensors.ts"
-import SockServer from "./SockServer.ts"
+import TemperatureSensors from './TemperatureSensors.ts'
+import SockServer from './SockServer.ts'
 import type { Socket } from 'node:net'
 
 class PIChamberGPIO {
@@ -8,7 +8,6 @@ class PIChamberGPIO {
     temperatureSensors: TemperatureSensors
     server: SockServer
     intervalId: any
-
 
     constructor(config: TConfig) {
         this.config = config
@@ -23,7 +22,7 @@ class PIChamberGPIO {
             connection.on('data', async () => {
                 const tempData = await this.temperatureSensors.read()
                 connection.write(JSON.stringify(tempData))
-            });
+            })
         })
 
         await this.temperatureSensors.connect()

@@ -9,9 +9,7 @@ class TemperatureSensorMAX31865 implements ITemperatureSensor {
     private wires: number = 3
     private rtdNominal: number = 100
     private refResistor: number = 430
-
-    private sensor
-
+    private sensor: MAX31865
 
     constructor(config: TTemeperatureSensorConfig) {
         this.name = config.name
@@ -23,14 +21,11 @@ class TemperatureSensorMAX31865 implements ITemperatureSensor {
     }
 
     async connect(): Promise<void> {
-        this.sensor = new MAX31865(
-            this.bus,
-            this.device,
-            {
-                wires: this.wires,
-                rtdNominal: this.rtdNominal,
-                refResistor: this.refResistor
-            });
+        this.sensor = new MAX31865(this.bus, this.device, {
+            wires: this.wires,
+            rtdNominal: this.rtdNominal,
+            refResistor: this.refResistor,
+        })
 
         await this.sensor.clearFaults()
         await this.sensor.init()
@@ -44,7 +39,7 @@ class TemperatureSensorMAX31865 implements ITemperatureSensor {
             type: 'TemperatureSensor',
             name: this.name,
             value,
-            error
+            error,
         }
     }
 
@@ -55,9 +50,11 @@ class TemperatureSensorMAX31865 implements ITemperatureSensor {
 
     async readErrorString(): Promise<string | null> {
         const faults = await this.sensor.getFaults()
-        return Object.entries(faults).reduce((result: string, [key, value]: [string, boolean]) => {
-            return value ? result += `${result ? ', ' : ''}${key}` : result
-        }, '') || null
+        return (
+            Object.entries(faults).reduce((result: string, [key, value]: [string, boolean]) => {
+                return value ? (result += `${result ? ', ' : ''}${key}`) : result
+            }, '') || null
+        )
     }
 }
 

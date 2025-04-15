@@ -1,6 +1,6 @@
 import type { TConfig } from '../../utils/readConfig.ts'
-import PIChamberGPIOClient from "./PIChamberGPIOClient.ts"
-import WebServer from "./WebServer.ts"
+import PIChamberGPIOClient from './PIChamberGPIOClient.ts'
+import WebServer from './WebServer.ts'
 
 export default class PIChamberServer {
     private config: TConfig

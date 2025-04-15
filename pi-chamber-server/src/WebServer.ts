@@ -18,38 +18,38 @@ export default class WebServer {
     }
 
     async start() {
-        this.server = await callbackAsyncWrapper((handle) => {
-            const server: Server = this.app.listen(this.config.port, (err) => {
+        this.server = await callbackAsyncWrapper(handle => {
+            const server: Server = this.app.listen(this.config.port, err => {
                 handle(err, server)
             })
         })
 
         console.log(`HTTP server running on http://localhost:${this.config.port}`)
 
-        this.wss = new WebSocketServer({ server: this.server, path: '/ws' });
+        this.wss = new WebSocketServer({ server: this.server, path: '/ws' })
 
         this.wss.on('connection', (ws: WebSocket) => {
-            console.log('New WebSocket connection');
+            console.log('New WebSocket connection')
 
             // Обработка закрытия соединения
             ws.on('close', () => {
-                console.log('WebSocket connection closed');
-            });
-        });
+                console.log('WebSocket connection closed')
+            })
+        })
     }
 
     async broadcast(data: string) {
-        this.wss.clients.forEach((client) => {
+        this.wss.clients.forEach(client => {
             if (client.readyState === WebSocket.OPEN) {
-                client.send(data);
+                client.send(data)
             }
-        });
+        })
     }
 
     async stop() {
         this.server.closeAllConnections()
-        this.wss.clients.forEach((client) => client.close())
-        await callbackAsyncWrapper((handler) => this.server.close(handler))
+        this.wss.clients.forEach(client => client.close())
+        await callbackAsyncWrapper(handler => this.server.close(handler))
         this.server = null
         this.wss = null
     }
