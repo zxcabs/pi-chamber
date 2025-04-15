@@ -1,15 +1,16 @@
 {
-  "name": "pi-chamber-server",
-  "private": true,
-  "version": "1.0.0",
-  "type": "module",
-  "scripts": {
-    "start": "node --env-file=.env --experimental-transform-types --experimental-strip-types index.ts"
-  },
-  "dependencies": {
-    "@types/express": "^5.0.1",
-    "@types/ws": "^8.18.1",
-    "express": "^4.21.2",
-    "ws": "^8.18.1"
-  }
+    "name": "pi-chamber-server",
+    "private": true,
+    "version": "1.0.0",
+    "type": "module",
+    "scripts": {
+        "dev": "node --watch --env-file=.env --experimental-transform-types --experimental-strip-types index.ts",
+        "start": "node --env-file=.env --experimental-transform-types --experimental-strip-types index.ts"
+    },
+    "dependencies": {
+        "@types/express": "^5.0.1",
+        "@types/ws": "^8.18.1",
+        "express": "^4.21.2",
+        "ws": "^8.18.1"
+    }
 }
