@@ -1,5 +1,6 @@
 import { z } from 'zod'
 import { BaseMessageSchema, createMessage } from './BaseMessage.ts'
+import { LightSchema, TemperatureSensorSchema } from './DeviceStatus.ts'
 
 export const TYPES = {
     RQ_STATUS: 'RQ_STATUS',
@@ -10,18 +11,11 @@ export const RqStatusSchema = BaseMessageSchema.extend({
     type: z.literal(TYPES.RQ_STATUS),
 })
 
-export type TRQStatusMessage = z.infer<typeof RqStatusSchema>
+export type TRqStatusMessage = z.infer<typeof RqStatusSchema>
 
 export const RsStatusPayloadSchema = z.object({
-    temperature_sensors: z
-        .array(
-            z.object({
-                name: z.string(),
-                value: z.number(),
-                error: z.string().nullable().optional(),
-            }),
-        )
-        .optional(),
+    temperature_sensors: z.array(TemperatureSensorSchema).optional().describe('Array of temperature sensors'),
+    lights: z.array(LightSchema).optional().describe('Array of lights'),
 })
 
 export type TRsStatusMessagePayload = z.infer<typeof RsStatusPayloadSchema>
@@ -33,7 +27,7 @@ export const RsStatusSchema = BaseMessageSchema.extend({
 
 export type TRSStatusMessage = z.infer<typeof RsStatusSchema>
 
-export function createRqStatusMessage(): TRQStatusMessage {
+export function createRqStatusMessage(): TRqStatusMessage {
     return createMessage(RqStatusSchema, TYPES.RQ_STATUS)
 }
 

@@ -1,10 +1,13 @@
 <script lang="ts">
+    import DeviceList from './lib/DeviceList.svelte'
+    import type { TAppStore } from './stores/app'
     import MainLayout from './ui/MainLayout/MainLayout.svelte'
-    import CurrentTemp from './lib/CurrentTemp.svelte'
+
+    export let appStore: TAppStore
 </script>
 
 <MainLayout onreload={() => window.location.reload()}>
-    <CurrentTemp />
+    <DeviceList />
 </MainLayout>
 
 <style>

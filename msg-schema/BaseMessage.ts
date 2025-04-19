@@ -1,4 +1,4 @@
-import { randomUUID } from 'crypto'
+import { v4 as randomUUID } from 'uuid'
 import { z, ZodLiteral, type ZodTypeAny } from 'zod'
 
 export const BaseMessageSchema = z.object({
@@ -12,7 +12,7 @@ export const BaseMessageSchema = z.object({
 
 export type TBaseMessage = z.infer<typeof BaseMessageSchema>
 
-type SchemaWithType<T extends string> = ZodTypeAny & {
+export type SchemaWithType<T extends string> = ZodTypeAny & {
     shape: { type: ZodLiteral<T> }
 }
 

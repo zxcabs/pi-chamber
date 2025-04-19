@@ -1,9 +1,10 @@
-import type { TTemeperatureSensorConfig } from '../../../utils/readConfig.ts'
 import type { ITemperatureSensor, ITemperatureSensorReadResult } from './ITemperatureSensor.type.ts'
+import type { TTemeperatureSensorConfig } from '../../../utils/readConfig.ts'
 import MAX31865 from 'max31865'
+import { EDeviceTypes } from './IBaseDeviceResult.types.ts'
 
 class TemperatureSensorMAX31865 implements ITemperatureSensor {
-    private name: string
+    readonly name: string
     private bus: number
     private device: number
     private wires: number = 3
@@ -36,7 +37,7 @@ class TemperatureSensorMAX31865 implements ITemperatureSensor {
         const error = await this.readErrorString()
 
         return {
-            type: 'TemperatureSensor',
+            type: EDeviceTypes.TemperatureSensor,
             name: this.name,
             value,
             error,

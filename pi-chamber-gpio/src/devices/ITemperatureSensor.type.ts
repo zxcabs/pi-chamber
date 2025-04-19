@@ -1,11 +1,9 @@
-export interface ITemperatureSensorReadResult {
-    type: 'TemperatureSensor'
-    name: string
-    value: number
-    error: string | null
-}
+import type { EDeviceTypes, IDeviceBaseResult } from './IBaseDeviceResult.types.ts'
+
+export interface ITemperatureSensorReadResult extends IDeviceBaseResult<EDeviceTypes.TemperatureSensor> {}
 
 export interface ITemperatureSensor {
+    readonly name: string
     connect(): Promise<void>
     read(): Promise<ITemperatureSensorReadResult>
     release(): Promise<void>

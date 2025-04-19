@@ -27,5 +27,8 @@ export function createPingMessage(): TPingMessage {
 }
 
 export function createPongMessage(uid: string): TPongMessage {
-    return createMessage(PongSchema, TYPES.PONG, { uid })
+    const pongMsg = createMessage(PongSchema, TYPES.PONG)
+    pongMsg.uid = uid
+
+    return pongMsg
 }
