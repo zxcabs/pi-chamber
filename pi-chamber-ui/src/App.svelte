@@ -1,15 +1,15 @@
 <script lang="ts">
-    import { shutdown } from './actions/shutdown'
-    import DeviceList from './lib/DeviceList.svelte'
-    import type { TAppStore } from './stores/app'
-    import MainLayout from './ui/MainLayout/MainLayout.svelte'
+    import { Router, Route } from 'svelte-routing'
+    import MainPage from './pages/MainPage.svelte'
+    import MainLayoutController from './controllers/MainLayoutController.svelte'
+    import SettingsPage from './pages/SettingsPage.svelte'
 
-    export let appStore: TAppStore
+    export let url = ''
 </script>
 
-<MainLayout onreload={() => window.location.reload()} onshutdown={() => shutdown()}>
-    <DeviceList />
-</MainLayout>
-
-<style>
-</style>
+<Router {url}>
+    <MainLayoutController>
+        <Route path="/settings"><SettingsPage /></Route>
+        <Route path="/"><MainPage /></Route>
+    </MainLayoutController>
+</Router>

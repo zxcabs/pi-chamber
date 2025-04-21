@@ -4,12 +4,13 @@
 
     export let onreload
     export let onshutdown
+    export let onnavigate
 </script>
 
 <div class="layout">
     <Header {onreload} {onshutdown} />
     <div class="content-wrapper">
-        <Sidebar />
+        <Sidebar {onnavigate} />
 
         <main class="main-content">
             <slot />

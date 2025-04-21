@@ -3,7 +3,7 @@ import 'modern-normalize/modern-normalize.css'
 import './app.css'
 import App from './App.svelte'
 import WS from './WS'
-import { appStore, handleMessage as appHandler } from './stores/app'
+import { handleMessage as appHandler } from './stores/app'
 import { createRqStatusMessage } from '../../msg-schema/StatusMessage'
 ;(async () => {
     const ws = WS.getInstance()
@@ -14,8 +14,5 @@ import { createRqStatusMessage } from '../../msg-schema/StatusMessage'
 
     const app = mount(App, {
         target: document.getElementById('app')!,
-        props: {
-            appStore,
-        },
     })
 })()

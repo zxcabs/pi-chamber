@@ -1,9 +1,11 @@
 <script lang="ts">
     import SidebarMenu from '../SidebarMenu/SidebarMenu.svelte'
+
+    export let onnavigate
 </script>
 
 <aside class="sidebar">
-    <nav><SidebarMenu /></nav>
+    <nav><SidebarMenu {onnavigate} /></nav>
 </aside>
 
 <style>

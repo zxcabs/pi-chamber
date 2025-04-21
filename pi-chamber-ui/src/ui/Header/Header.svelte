@@ -1,4 +1,6 @@
 <script lang="ts">
+    import Icon from '@iconify/svelte'
+
     export let className = ''
     export let onreload
     export let onshutdown
@@ -7,8 +9,8 @@
 <header class="header {className}">
     <h1>PI Chamber</h1>
     <div class="buttons">
-        <button class="button" onclick={onreload}>↻</button>
-        <button class="button" onclick={onshutdown}>⏼</button>
+        <button class="button" onclick={onreload}><Icon icon="fluent:arrow-clockwise-16-regular" /></button>
+        <button class="button" onclick={onshutdown}><Icon icon="fluent:power-20-regular" /></button>
     </div>
 </header>
 

@@ -1,10 +1,11 @@
 <script lang="ts">
+    import Icon from '@iconify/svelte'
     import type { TBaseDevice } from '../../../../msg-schema/DeviceStatus.ts'
     import { EDeviceTypes } from '../../../../pi-chamber-gpio/src/devices/IBaseDeviceResult.types.js'
 
     const ICONS: Record<string, string> = {
-        [EDeviceTypes.TemperatureSensor]: '🌡️',
-        [EDeviceTypes.Gpio]: '💡',
+        [EDeviceTypes.TemperatureSensor]: 'fluent:temperature-16-regular',
+        [EDeviceTypes.Gpio]: 'fluent:lightbulb-16-regular',
     }
 
     export let device: TBaseDevice
@@ -31,7 +32,7 @@
     class="device"
     aria-label={`Device ${device.name || 'unknown'}`}
 >
-    <div>{ICONS[device.type] || ''}</div>
+    <div><Icon icon={ICONS[device.type] || ''} /></div>
     <div>{device.name}</div>
     <div>{device.value}</div>
 </div>
