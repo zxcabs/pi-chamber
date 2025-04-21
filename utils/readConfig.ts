@@ -59,35 +59,38 @@ const temperatureSensorsSchema = z
 
 export type TTemeperatureSensorsConfig = ReadonlyDeep<z.infer<typeof temperatureSensorsSchema>>
 
-const lightSchema = z
+const gpioDeviceSchema = z
     .object({
         name: z.string({
-            required_error: 'Light name is required',
+            required_error: 'GPIO device name is required',
         }),
         gpio: z
             .number({
-                required_error: 'Light gpio number is required',
-                invalid_type_error: 'Light gpio must be a number',
+                required_error: 'GPIO device number is required',
+                invalid_type_error: 'GPIO device must be a number',
             })
             .min(0)
             .max(40),
+        initial_value: z.number({ invalid_type_error: 'GPIO device must be a number' }).min(0).max(1).default(0),
     })
     .strict()
 
-export type TLightConfig = ReadonlyDeep<z.infer<typeof lightSchema>>
+export type TGPIODeviceConfig = ReadonlyDeep<z.infer<typeof gpioDeviceSchema>>
 
-const lightsSchema = z
-    .array(lightSchema)
-    .refine(items => new Set(items.map(i => i.name)).size === items.length, { message: 'Light names must be unique' })
+const gpioDevicesSchema = z
+    .array(gpioDeviceSchema)
+    .refine(items => new Set(items.map(i => i.name)).size === items.length, {
+        message: 'GPIO device names must be unique',
+    })
 
-export type TLightsConfig = ReadonlyDeep<z.infer<typeof lightsSchema>>
+export type TGPIODevicesConfig = ReadonlyDeep<z.infer<typeof gpioDevicesSchema>>
 
 const configSchema = z
     .object({
         general: generalSchema,
         web_server: webServerSchema,
         temperature_sensors: temperatureSensorsSchema,
-        lights: lightsSchema,
+        gpio_devices: gpioDevicesSchema,
     })
     .strict()
 

@@ -20,14 +20,14 @@ export default class PIChamberGPIOClient extends EventEmitter {
         this.config = config
     }
 
-    send(data: string) {
+    async send(data: string) {
         if (this.client.readyState === 'open') {
-            this.client.write(data)
+            await callbackAsyncWrapper(handler => this.client.write(data, handler))
         }
     }
 
-    sendMessage(msg: TBaseMessage) {
-        this.send(JSON.stringify(msg))
+    async sendMessage(msg: TBaseMessage) {
+        await this.send(JSON.stringify(msg) + '\n')
     }
 
     private async connect() {
@@ -46,8 +46,14 @@ export default class PIChamberGPIOClient extends EventEmitter {
             console.log(`PIChamberGPIOClient received data`)
             this.emit('data', data)
 
+            const msgs = data.toString().split('\n')
+
             try {
-                this.processMessge(parceMessage(data.toString()))
+                if (msgs?.length) {
+                    msgs.forEach(msg => {
+                        this.processMessge(msg)
+                    })
+                }
             } catch (error) {
                 this.emit('error', error)
             }
@@ -96,13 +102,18 @@ export default class PIChamberGPIOClient extends EventEmitter {
         this.pingTimeoutId = setTimeout(() => this.ping(), this.pingMS)
     }
 
-    private processMessge(msg: TBaseMessage) {
-        if (msg.type === TYPES.PONG) {
-            if (msg.uid !== this.currentPingMsg.uid) {
-                this.emit('error', 'Wrong ping uid')
+    private processMessge(msgString: string) {
+        const trimmed = msgString.trim()
+
+        if (trimmed) {
+            const msg = parceMessage(trimmed)
+            if (msg.type === TYPES.PONG) {
+                if (msg.uid !== this.currentPingMsg.uid) {
+                    this.emit('error', 'Wrong ping uid')
+                }
+            } else {
+                this.emit('messsage', msg)
             }
-        } else {
-            this.emit('messsage', msg)
         }
     }
 }

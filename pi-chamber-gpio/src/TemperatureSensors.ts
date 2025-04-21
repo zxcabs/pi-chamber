@@ -28,7 +28,7 @@ class TemperatureSensors {
         await Promise.all(this.sensors.map(sensor => sensor.connect()))
     }
 
-    async read(): Promise<Array<ITemperatureSensorReadResult>> {
+    async readAll(): Promise<Array<ITemperatureSensorReadResult>> {
         return await Promise.all(this.sensors.map(sensor => sensor.read()))
     }
 

@@ -1,43 +1,46 @@
 import { Gpio, type BinaryValue } from 'onoff'
-import type { TLightConfig } from '../../../utils/readConfig.ts'
-import type { ILight, ILightResult } from './ILight.type.ts'
+import type { TGPIODeviceConfig } from '../../../utils/readConfig.ts'
+import type { IGPIODevice, IGPIODeviceResult } from './IGPIODevice.type.ts'
 import { EDeviceTypes } from './IBaseDeviceResult.types.ts'
 
-export class Light implements ILight {
+export class GPIODevice implements IGPIODevice {
     readonly name: string
     private gpio: number
     private led: Gpio
+    private initial_value: BinaryValue = 0
 
-    constructor(config: TLightConfig) {
+    constructor(config: TGPIODeviceConfig) {
         this.name = config.name
         this.gpio = config.gpio
+        this.initial_value = config.initial_value as BinaryValue
     }
 
     async connect(): Promise<void> {
         this.led = new Gpio(this.gpio, 'out')
+        await this.led.write(this.initial_value)
     }
 
-    async read(): Promise<ILightResult> {
+    async read(): Promise<IGPIODeviceResult> {
         let value: BinaryValue
         let error: Error
 
         value = await this.led.read().catch(e => (error = e))
 
         return {
-            type: EDeviceTypes.Light,
+            type: EDeviceTypes.Gpio,
             name: this.name,
             value,
             error: error?.toString(),
         }
     }
 
-    async write(value: BinaryValue): Promise<ILightResult> {
+    async write(value: BinaryValue): Promise<IGPIODeviceResult> {
         let error: Error
 
         await this.led.write(value).catch(e => (error = e))
 
         return {
-            type: EDeviceTypes.Light,
+            type: EDeviceTypes.Gpio,
             name: this.name,
             value,
             error: error?.toString(),

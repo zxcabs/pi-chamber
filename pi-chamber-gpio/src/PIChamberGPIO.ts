@@ -1,43 +1,31 @@
 import { type TConfig } from '../../utils/readConfig.ts'
 import TemperatureSensors from './TemperatureSensors.ts'
 import PIChamberGPIOServer from './PIChamberGPIOServer.ts'
-import type { TBaseMessage } from '../../msg-schema/BaseMessage.ts'
-import { createRsStatusMessage, TYPES as STATUS_TYPES } from '../../msg-schema/StatusMessage.ts'
-import { Lights } from './Lights.ts'
+import { GPIODevices } from './GPIODevices.ts'
+import type { BaseApiHandler } from './api/BaseApiHandler.ts'
+import PingHandler from './api/PingHandler.ts'
+import StatusHandler from './api/StatusHandler.ts'
+import ToggleGPIODeviceHandler from './api/ToggleGPIODeviceHandler.ts'
 
 class PIChamberGPIO {
     config: TConfig
     server: PIChamberGPIOServer
     temperatureSensors: TemperatureSensors
-    lights: Lights
+    gpioDevices: GPIODevices
+    apiHandlers: BaseApiHandler[]
 
     constructor(config: TConfig) {
         this.config = config
         this.server = new PIChamberGPIOServer(config.general)
         this.temperatureSensors = new TemperatureSensors(config.temperature_sensors)
-        this.lights = new Lights(config.lights)
+        this.gpioDevices = new GPIODevices(config.gpio_devices)
+        this.apiHandlers = [new PingHandler(this), new StatusHandler(this), new ToggleGPIODeviceHandler(this)]
     }
 
     async start() {
         await this.server.start()
         await this.temperatureSensors.connect()
-        await this.lights.connect()
-
-        await this.lights.write('chamber light', 1)
-
-        this.server.on('messsage', async (msg: TBaseMessage) => {
-            if (msg.type === STATUS_TYPES.RQ_STATUS) {
-                const tempStatus = await this.temperatureSensors.read()
-                const lightsStatus = await this.lights.readAll()
-
-                const statusMsg = createRsStatusMessage({
-                    temperature_sensors: tempStatus,
-                    lights: lightsStatus,
-                })
-
-                this.server.sendMessage(statusMsg)
-            }
-        })
+        await this.gpioDevices.connect()
 
         this.server.on('error', error => {
             console.error(error)
@@ -45,9 +33,10 @@ class PIChamberGPIO {
     }
 
     async stop() {
+        this.apiHandlers.forEach(i => i.destroy())
         await this.server.stop()
         await this.temperatureSensors.release()
-        await this.lights.release()
+        await this.gpioDevices.release()
     }
 }
 

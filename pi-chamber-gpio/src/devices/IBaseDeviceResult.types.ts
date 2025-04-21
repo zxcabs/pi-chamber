@@ -1,5 +1,5 @@
 export const enum EDeviceTypes {
-    Light = 'Light',
+    Gpio = 'Gpio',
     TemperatureSensor = 'TemperatureSensor',
 }
 

@@ -5,7 +5,6 @@ import type { TGeneralConfig } from '../../utils/readConfig.ts'
 import callbackAsyncWrapper from '../../utils/callbackAsyncWrapper.ts'
 import parceMessage from '../../msg-schema/messageParcer.ts'
 import type { TBaseMessage } from '../../msg-schema/BaseMessage.ts'
-import { TYPES, createPongMessage } from '../../msg-schema/PingPongMessage.ts'
 
 export default class PIChamberGPIOServer extends EventEmitter {
     private config: TGeneralConfig
@@ -32,8 +31,14 @@ export default class PIChamberGPIOServer extends EventEmitter {
             connection.on('data', data => {
                 this.emit('data', data)
 
+                const msgs = data.toString().split('\n')
+
                 try {
-                    this.processMessge(parceMessage(data.toString()))
+                    if (msgs?.length) {
+                        msgs.forEach(msg => {
+                            this.processMessge(msg)
+                        })
+                    }
                 } catch (error) {
                     this.emit('error', error)
                 }
@@ -83,7 +88,7 @@ export default class PIChamberGPIOServer extends EventEmitter {
 
     broadcast(data: string) {
         this.clients.forEach(client => {
-            client.write(data)
+            client.write(data + '\n')
         })
     }
 
@@ -91,11 +96,12 @@ export default class PIChamberGPIOServer extends EventEmitter {
         this.broadcast(JSON.stringify(msg))
     }
 
-    private processMessge(msg: TBaseMessage) {
-        if (msg.type === TYPES.PING) {
-            this.broadcast(JSON.stringify(createPongMessage(msg.uid)))
-        } else {
-            this.emit('messsage', msg)
+    private processMessge(msgString: string) {
+        const trimmed = msgString.trim()
+
+        if (trimmed) {
+            const msg = parceMessage(trimmed)
+            this.emit('message', msg)
         }
     }
 }
