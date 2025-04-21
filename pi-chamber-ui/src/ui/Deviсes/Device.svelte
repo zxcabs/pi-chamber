@@ -4,7 +4,7 @@
 
     const ICONS: Record<string, string> = {
         [EDeviceTypes.TemperatureSensor]: '🌡️',
-        [EDeviceTypes.Light]: '💡',
+        [EDeviceTypes.Gpio]: '💡',
     }
 
     export let device: TBaseDevice

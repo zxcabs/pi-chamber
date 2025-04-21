@@ -3,13 +3,14 @@
     import { devices } from '../stores/devices'
     import type { TBaseDevice } from '../../../msg-schema/DeviceStatus'
     import { EDeviceTypes } from '../../../pi-chamber-gpio/src/devices/IBaseDeviceResult.types'
+    import { toggleDevice } from '../actions/devices'
 
     const handleClickDevice = (device: TBaseDevice) => {
-        if (device.type != EDeviceTypes.Light) {
+        if (device.type != EDeviceTypes.Gpio) {
             return
         }
 
-        console.log(device)
+        toggleDevice(device)
     }
 </script>
 

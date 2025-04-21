@@ -2,6 +2,7 @@ import { z } from 'zod'
 
 export const DeviceTypeSchema = z.string().min(1).describe('Device type should not be empty')
 export const DeviceNameSchema = z.string().min(1).describe('Device name should not be empty')
+export const DeviceTimeSchema = z.number().min(0).finite().describe('Device get status time')
 export const DeviceValueSchema = z.number().finite().describe('Device value should be a finite number')
 export const DeviceErrorSchema = z.string().nullable().optional().describe('Error message if device failed')
 
@@ -9,6 +10,7 @@ export const BaseDeviceSchema = z
     .object({
         type: DeviceTypeSchema,
         name: DeviceNameSchema,
+        time: DeviceTimeSchema,
         value: DeviceValueSchema,
         error: DeviceErrorSchema,
     })

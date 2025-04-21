@@ -5,6 +5,7 @@ import { GPIODeviceSchema, TemperatureSensorSchema } from './DeviceStatus.ts'
 export const TYPES = {
     RQ_STATUS: 'RQ_STATUS',
     RS_STATUS: 'RS_STATUS',
+    EVENT_STATUS: 'EVENT_STATUS',
 } as const
 
 export const RqStatusSchema = BaseMessageSchema.extend({
@@ -25,12 +26,23 @@ export const RsStatusSchema = BaseMessageSchema.extend({
     payload: RsStatusPayloadSchema,
 })
 
-export type TRSStatusMessage = z.infer<typeof RsStatusSchema>
+export type TRsStatusMessage = z.infer<typeof RsStatusSchema>
+
+export const EventStatusSchema = BaseMessageSchema.extend({
+    type: z.literal(TYPES.EVENT_STATUS),
+    payload: RsStatusPayloadSchema,
+})
+
+export type TEventStatusMessage = z.infer<typeof EventStatusSchema>
 
 export function createRqStatusMessage(): TRqStatusMessage {
     return createMessage(RqStatusSchema, TYPES.RQ_STATUS)
 }
 
-export function createRsStatusMessage(payload: TRsStatusMessagePayload): TRSStatusMessage {
+export function createRsStatusMessage(payload: TRsStatusMessagePayload): TRsStatusMessage {
     return createMessage(RsStatusSchema, TYPES.RS_STATUS, payload)
+}
+
+export function createEventStatusMessage(payload: TRsStatusMessagePayload): TEventStatusMessage {
+    return createMessage(EventStatusSchema, TYPES.EVENT_STATUS, payload)
 }

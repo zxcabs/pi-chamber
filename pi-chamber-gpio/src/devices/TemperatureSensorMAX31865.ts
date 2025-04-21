@@ -39,6 +39,7 @@ class TemperatureSensorMAX31865 implements ITemperatureSensor {
         return {
             type: EDeviceTypes.TemperatureSensor,
             name: this.name,
+            time: Date.now(),
             value,
             error,
         }

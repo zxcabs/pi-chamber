@@ -1,4 +1,3 @@
-import type { Writable } from 'svelte/store'
 import callbackAsyncWrapper from '../../utils/callbackAsyncWrapper'
 
 export default class WS {
@@ -35,7 +34,7 @@ export default class WS {
         return WS.instance
     }
 
-    constructor() {}
+    private constructor() {}
 
     async connect() {
         try {

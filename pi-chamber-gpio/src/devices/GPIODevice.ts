@@ -29,6 +29,7 @@ export class GPIODevice implements IGPIODevice {
         return {
             type: EDeviceTypes.Gpio,
             name: this.name,
+            time: Date.now(),
             value,
             error: error?.toString(),
         }
@@ -42,6 +43,7 @@ export class GPIODevice implements IGPIODevice {
         return {
             type: EDeviceTypes.Gpio,
             name: this.name,
+            time: Date.now(),
             value,
             error: error?.toString(),
         }

@@ -12,6 +12,7 @@ const generalSchema = z
         chamber_temperature_sensors: z.array(z.string()).min(1, {
             message: 'At least one chamber temperature sensor must be specified',
         }),
+        status_timeinterval: z.number().min(100).max(60000).default(1000).describe('Status check time interval'),
         pigpio_server_host: z.string().default('localhost'),
         pigpio_server_port: z.number().min(1).max(65535).default(8888),
     })

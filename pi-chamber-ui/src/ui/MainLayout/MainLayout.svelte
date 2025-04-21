@@ -3,10 +3,11 @@
     import Header from '../Header/Header.svelte'
 
     export let onreload
+    export let onshutdown
 </script>
 
 <div class="layout">
-    <Header {onreload} />
+    <Header {onreload} {onshutdown} />
     <div class="content-wrapper">
         <Sidebar />
 

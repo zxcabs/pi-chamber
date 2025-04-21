@@ -1,12 +1,14 @@
 <script lang="ts">
     export let className = ''
     export let onreload
+    export let onshutdown
 </script>
 
 <header class="header {className}">
     <h1>PI Chamber</h1>
     <div class="buttons">
         <button class="button" onclick={onreload}>↻</button>
+        <button class="button" onclick={onshutdown}>⏼</button>
     </div>
 </header>
 

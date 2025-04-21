@@ -3,14 +3,17 @@ import express, { type Application } from 'express'
 import { WebSocketServer, WebSocket } from 'ws'
 import type { TWebServerConfig } from '../../utils/readConfig.ts'
 import callbackAsyncWrapper from '../../utils/callbackAsyncWrapper.ts'
+import EventEmitter from 'node:events'
+import parceMessage from '../../msg-schema/messageParcer.ts'
 
-export default class WebServer {
+export default class WebServer extends EventEmitter {
     private config: TWebServerConfig
     private app: Application
     private server: Server
     private wss: WebSocketServer
 
     constructor(config: TWebServerConfig) {
+        super()
         this.config = config
 
         this.app = express()
@@ -31,9 +34,12 @@ export default class WebServer {
         this.wss.on('connection', (ws: WebSocket) => {
             console.log('New WebSocket connection')
 
-            // Обработка закрытия соединения
             ws.on('close', () => {
                 console.log('WebSocket connection closed')
+            })
+
+            ws.on('message', data => {
+                this.proccessWSSMEssage(data.toString(), ws)
             })
         })
     }
@@ -52,7 +58,17 @@ export default class WebServer {
             this.wss.clients.forEach(client => client.close())
             this.server.close(handler)
         })
+        this.removeAllListeners()
         this.server = null
         this.wss = null
+    }
+
+    private proccessWSSMEssage(msgString: string, ws?: WebSocket) {
+        const trimmed = msgString.trim()
+
+        if (!trimmed) return
+
+        const msg = parceMessage(trimmed)
+        this.emit('message', msg)
     }
 }

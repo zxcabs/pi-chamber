@@ -4,18 +4,18 @@ import './app.css'
 import App from './App.svelte'
 import WS from './WS'
 import { appStore, handleMessage as appHandler } from './stores/app'
-import { devices } from './stores/devices'
+import { createRqStatusMessage } from '../../msg-schema/StatusMessage'
+;(async () => {
+    const ws = WS.getInstance()
+    await ws.connect()
 
-const ws = new WS()
-ws.connect()
+    ws.registerStoreHandler(appHandler)
+    ws.send(createRqStatusMessage())
 
-ws.registerStoreHandler(appHandler)
-
-const app = mount(App, {
-    target: document.getElementById('app')!,
-    props: {
-        appStore,
-    },
-})
-
-export default app
+    const app = mount(App, {
+        target: document.getElementById('app')!,
+        props: {
+            appStore,
+        },
+    })
+})()

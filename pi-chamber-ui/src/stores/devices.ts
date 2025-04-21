@@ -13,16 +13,29 @@ export type TDevices = Writable<TBaseDevice[]>
 export const devices: TDevices = writable([])
 
 export const handleMessage = (message: TBaseMessage) => {
-    if (message.type === STATUS_TYPES.RS_STATUS) {
+    if (STATUS_TYPES.RS_STATUS === message.type) {
         const status = message.payload as TRsStatusMessagePayload
         devices.set([...(status?.temperature_sensors || []), ...(status?.gpio_devices || [])])
+    } else if (STATUS_TYPES.EVENT_STATUS === message.type) {
+        const status = message.payload as TRsStatusMessagePayload
+        const devicesStatus = [...(status?.temperature_sensors || []), ...(status?.gpio_devices || [])]
+
+        devices.update(values => {
+            return devicesStatus.reduce((acc, device) => {
+                const index = acc.findIndex(({ name }) => name === device.name)
+
+                if (index < 0 || acc[index].time > device.time) return acc
+
+                return [...acc.slice(0, index), device, ...acc.slice(index + 1)]
+            }, values)
+        })
     } else if (message.type === TOGGLE_TYPES.RS_TOGGLE_GPIO_DEVICE) {
         const device = message.payload as TRsToggleGPIODeviceMessagePayload
 
         devices.update(values => {
             const index = values.findIndex(({ name }) => name === device.name)
 
-            if (index < 0) return values
+            if (index < 0 || index < 0 || values[index].time > device.time) return values
             return [...values.slice(0, index), device, ...values.slice(index + 1)]
         })
     }

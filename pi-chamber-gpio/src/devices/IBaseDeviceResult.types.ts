@@ -6,6 +6,7 @@ export const enum EDeviceTypes {
 export interface IDeviceBaseResult<T extends EDeviceTypes> {
     readonly type: T
     readonly name: string
+    readonly time: number
     readonly value: number
     readonly error?: string | null
 }

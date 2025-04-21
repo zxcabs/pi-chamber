@@ -2,8 +2,6 @@ import type { TBaseMessage } from '../../msg-schema/BaseMessage.ts'
 import type { TConfig } from '../../utils/readConfig.ts'
 import PIChamberGPIOClient from './PIChamberGPIOClient.ts'
 import WebServer from './WebServer.ts'
-import { createRqStatusMessage, TYPES } from '../../msg-schema/StatusMessage.ts'
-import { createRqToggleGPIODeviceMessage } from '../../msg-schema/ToggleGPIODeviceMessage.ts'
 
 export default class PIChamberServer {
     private config: TConfig
@@ -28,11 +26,9 @@ export default class PIChamberServer {
             console.error(error)
         })
 
-        setInterval(() => {
-            this.gpioClient.sendMessage(createRqStatusMessage())
-            this.gpioClient.sendMessage(createRqToggleGPIODeviceMessage({ name: 'outer led' }))
-            this.gpioClient.sendMessage(createRqToggleGPIODeviceMessage({ name: 'inner led' }))
-        }, 1000)
+        this.webServer.on('message', (msg: TBaseMessage) => {
+            this.gpioClient.sendMessage(msg)
+        })
     }
 
     async stop() {
