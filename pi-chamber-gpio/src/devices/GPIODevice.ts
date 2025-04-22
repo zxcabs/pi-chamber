@@ -1,33 +1,37 @@
 import { Gpio, type BinaryValue } from 'onoff'
 import type { TGPIODeviceConfig } from '../../../utils/readConfig.ts'
-import type { IGPIODevice, IGPIODeviceResult } from './IGPIODevice.type.ts'
-import { EDeviceTypes } from './IBaseDeviceResult.types.ts'
+import type { IGPIODevice, IGPIODeviceResult, TGPIOValue } from './types/IGPIODevice.type.ts'
+import { EDeviceTypes } from './types/IBaseDeviceResult.types.ts'
 
 export class GPIODevice implements IGPIODevice {
     readonly name: string
-    private gpio: number
-    private led: Gpio
-    private initial_value: BinaryValue = 0
+    private pin: number
+    private gpio: Gpio
+    private initialValue: TGPIOValue = 0
 
     constructor(config: TGPIODeviceConfig) {
         this.name = config.name
-        this.gpio = config.gpio
-        this.initial_value = config.initial_value as BinaryValue
+        this.pin = config.gpio
+        this.initialValue = this.toValue(config.initial_value)
+    }
+
+    private toValue(value: number): TGPIOValue {
+        return Math.max(0, Math.min(1, value)) as TGPIOValue
     }
 
     async connect(): Promise<void> {
-        this.led = new Gpio(this.gpio, 'out')
-        await this.led.write(this.initial_value)
+        this.gpio = new Gpio(this.pin, 'out')
+        await this.gpio.write(this.initialValue)
     }
 
     async read(): Promise<IGPIODeviceResult> {
-        let value: BinaryValue
+        let value: TGPIOValue
         let error: Error
 
-        value = await this.led.read().catch(e => (error = e))
+        value = await this.gpio.read().catch(e => (error = e))
 
         return {
-            type: EDeviceTypes.Gpio,
+            type: EDeviceTypes.GPIO,
             name: this.name,
             time: Date.now(),
             value,
@@ -35,13 +39,13 @@ export class GPIODevice implements IGPIODevice {
         }
     }
 
-    async write(value: BinaryValue): Promise<IGPIODeviceResult> {
+    async write(value: TGPIOValue): Promise<IGPIODeviceResult> {
         let error: Error
 
-        await this.led.write(value).catch(e => (error = e))
+        await this.gpio.write(value).catch(e => (error = e))
 
         return {
-            type: EDeviceTypes.Gpio,
+            type: EDeviceTypes.GPIO,
             name: this.name,
             time: Date.now(),
             value,
@@ -50,7 +54,7 @@ export class GPIODevice implements IGPIODevice {
     }
 
     async release(): Promise<void> {
-        await this.led.write(0)
-        this.led.unexport()
+        await this.gpio.write(0)
+        this.gpio.unexport()
     }
 }

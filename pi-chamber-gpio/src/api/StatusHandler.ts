@@ -5,8 +5,9 @@ import {
     type TRqStatusMessage,
     type TRsStatusMessagePayload,
 } from '../../../msg-schema/StatusMessage.ts'
-import type { IGPIODeviceResult } from '../devices/IGPIODevice.type.ts'
-import type { ITemperatureSensorReadResult } from '../devices/ITemperatureSensor.type.ts'
+import type { IGPIODeviceResult } from '../devices/types/IGPIODevice.type.ts'
+import type { IPWMDeviceResult } from '../devices/types/IPWMDevice.type.ts'
+import type { ITemperatureSensorReadResult } from '../devices/types/ITemperatureSensor.type.ts'
 import type PIChamberGPIO from '../PIChamberGPIO.ts'
 import { BaseApiHandler } from './BaseApiHandler.ts'
 
@@ -18,16 +19,23 @@ export default class StatusHandler extends BaseApiHandler<TRqStatusMessage> {
         this.sendEventStatus()
     }
 
-    private async getStatus(): Promise<[Array<ITemperatureSensorReadResult>, Array<IGPIODeviceResult>]> {
-        return await Promise.all([this.ctx.temperatureSensors.readAll(), this.ctx.gpioDevices.readAll()])
+    private async getStatus(): Promise<
+        [Array<ITemperatureSensorReadResult>, Array<IGPIODeviceResult>, Array<IPWMDeviceResult>]
+    > {
+        return await Promise.all([
+            this.ctx.temperatureSensors.readAll(),
+            this.ctx.gpioDevices.readAll(),
+            this.ctx.pwmDevices.readAll(),
+        ])
     }
 
     private async getStatusPayload(): Promise<TRsStatusMessagePayload> {
-        const [temperature_sensors, gpio_devices] = await this.getStatus()
+        const [temperature_sensors, gpio_devices, pwm_devices] = await this.getStatus()
 
         return {
             temperature_sensors,
             gpio_devices,
+            pwm_devices,
         }
     }
 

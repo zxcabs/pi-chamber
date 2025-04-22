@@ -7,6 +7,7 @@ import {
     TYPES as TOGGLE_TYPES,
     type TRsToggleGPIODeviceMessagePayload,
 } from '../../../msg-schema/ToggleGPIODeviceMessage'
+import { TYPES as PWM_TYPES } from '../../../msg-schema/PWMDeviceMessage'
 
 export type TDevices = Writable<TBaseDevice[]>
 
@@ -15,10 +16,18 @@ export const devices: TDevices = writable([])
 export const handleMessage = (message: TBaseMessage) => {
     if (STATUS_TYPES.RS_STATUS === message.type) {
         const status = message.payload as TRsStatusMessagePayload
-        devices.set([...(status?.temperature_sensors || []), ...(status?.gpio_devices || [])])
+        devices.set([
+            ...(status?.temperature_sensors || []),
+            ...(status?.gpio_devices || []),
+            ...(status?.pwm_devices || []),
+        ])
     } else if (STATUS_TYPES.EVENT_STATUS === message.type) {
         const status = message.payload as TRsStatusMessagePayload
-        const devicesStatus = [...(status?.temperature_sensors || []), ...(status?.gpio_devices || [])]
+        const devicesStatus = [
+            ...(status?.temperature_sensors || []),
+            ...(status?.gpio_devices || []),
+            ...(status?.pwm_devices || []),
+        ]
 
         devices.update(values => {
             return devicesStatus.reduce((acc, device) => {
@@ -29,7 +38,7 @@ export const handleMessage = (message: TBaseMessage) => {
                 return [...acc.slice(0, index), device, ...acc.slice(index + 1)]
             }, values)
         })
-    } else if (message.type === TOGGLE_TYPES.RS_TOGGLE_GPIO_DEVICE) {
+    } else if (message.type === TOGGLE_TYPES.RS_TOGGLE_GPIO_DEVICE || message.type === PWM_TYPES.RS_SET_PWM) {
         const device = message.payload as TRsToggleGPIODeviceMessagePayload
 
         devices.update(values => {

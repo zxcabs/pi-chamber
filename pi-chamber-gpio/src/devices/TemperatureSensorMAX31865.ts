@@ -1,7 +1,7 @@
-import type { ITemperatureSensor, ITemperatureSensorReadResult } from './ITemperatureSensor.type.ts'
+import type { ITemperatureSensor, ITemperatureSensorReadResult } from './types/ITemperatureSensor.type.ts'
 import type { TTemeperatureSensorConfig } from '../../../utils/readConfig.ts'
 import MAX31865 from 'max31865'
-import { EDeviceTypes } from './IBaseDeviceResult.types.ts'
+import { EDeviceTypes } from './types/IBaseDeviceResult.types.ts'
 
 class TemperatureSensorMAX31865 implements ITemperatureSensor {
     readonly name: string

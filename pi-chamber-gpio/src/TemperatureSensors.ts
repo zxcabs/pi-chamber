@@ -1,5 +1,5 @@
 import type { TTemeperatureSensorsConfig, TTemeperatureSensorConfig } from '../../utils/readConfig.ts'
-import type { ITemperatureSensor, ITemperatureSensorReadResult } from './devices/ITemperatureSensor.type.ts'
+import type { ITemperatureSensor, ITemperatureSensorReadResult } from './devices/types/ITemperatureSensor.type.ts'
 import TemperatureSensorMAX31865 from './devices/TemperatureSensorMAX31865.ts'
 
 const SENSORS_TYPE_CONT_MAP = {

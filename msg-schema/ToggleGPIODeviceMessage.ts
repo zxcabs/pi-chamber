@@ -1,5 +1,4 @@
 import { z } from 'zod'
-import type { ReadonlyDeep } from 'type-fest'
 import { BaseMessageSchema, createMessage } from './BaseMessage.ts'
 import { DeviceNameSchema, GPIODeviceSchema } from './DeviceStatus.ts'
 

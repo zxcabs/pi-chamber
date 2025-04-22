@@ -1,11 +1,11 @@
 <script lang="ts">
     import Icon from '@iconify/svelte'
     import type { TBaseDevice } from '../../../../msg-schema/DeviceStatus.ts'
-    import { EDeviceTypes } from '../../../../pi-chamber-gpio/src/devices/IBaseDeviceResult.types.js'
+    import { EDeviceTypes } from '../../../../pi-chamber-gpio/src/devices/types/IBaseDeviceResult.types.js'
 
     const ICONS: Record<string, string> = {
         [EDeviceTypes.TemperatureSensor]: 'fluent:temperature-16-regular',
-        [EDeviceTypes.Gpio]: 'fluent:lightbulb-16-regular',
+        [EDeviceTypes.GPIO]: 'fluent:lightbulb-16-regular',
     }
 
     export let device: TBaseDevice

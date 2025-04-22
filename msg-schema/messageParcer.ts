@@ -7,6 +7,7 @@ import {
     RsToggleGPIODeviceMessageSchema,
     TYPES as TOGGLE_TYPES,
 } from './ToggleGPIODeviceMessage.ts'
+import { TYPES as PWM_TYPES, RqSetPWMMessageSchema, RsSetPWMMessageSchema } from './PWMDeviceMessage.ts'
 import { RqShutdownSchema, TYPES as SHUTDOWN_TYPES } from './ShutdownMessage.ts'
 
 const SCHEMAS_BY_TYPE = {
@@ -19,6 +20,9 @@ const SCHEMAS_BY_TYPE = {
 
     [TOGGLE_TYPES.RQ_TOGGLE_GPIO_DEVICE]: RqToggleGPIODeviceMessageSchema,
     [TOGGLE_TYPES.RS_TOGGLE_GPIO_DEVICE]: RsToggleGPIODeviceMessageSchema,
+
+    [PWM_TYPES.RQ_SET_PWM]: RqSetPWMMessageSchema,
+    [PWM_TYPES.RS_SET_PWM]: RsSetPWMMessageSchema,
 
     [SHUTDOWN_TYPES.RQ_SHUTDOWN]: RqShutdownSchema,
 }

@@ -1,6 +1,6 @@
 import { z } from 'zod'
 import { BaseMessageSchema, createMessage } from './BaseMessage.ts'
-import { GPIODeviceSchema, TemperatureSensorSchema } from './DeviceStatus.ts'
+import { GPIODeviceSchema, PWMDeviceSchema, TemperatureSensorSchema } from './DeviceStatus.ts'
 
 export const TYPES = {
     RQ_STATUS: 'RQ_STATUS',
@@ -17,6 +17,7 @@ export type TRqStatusMessage = z.infer<typeof RqStatusSchema>
 export const RsStatusPayloadSchema = z.object({
     temperature_sensors: z.array(TemperatureSensorSchema).optional().describe('Array of temperature sensors'),
     gpio_devices: z.array(GPIODeviceSchema).optional().describe('Array of gpio device'),
+    pwm_devices: z.array(PWMDeviceSchema).optional().describe('Array of gpio device'),
 })
 
 export type TRsStatusMessagePayload = z.infer<typeof RsStatusPayloadSchema>

@@ -13,8 +13,6 @@ const generalSchema = z
             message: 'At least one chamber temperature sensor must be specified',
         }),
         status_timeinterval: z.number().min(100).max(60000).default(1000).describe('Status check time interval'),
-        pigpio_server_host: z.string().default('localhost'),
-        pigpio_server_port: z.number().min(1).max(65535).default(8888),
     })
     .required()
     .strict()
@@ -81,10 +79,60 @@ export type TGPIODeviceConfig = ReadonlyDeep<z.infer<typeof gpioDeviceSchema>>
 const gpioDevicesSchema = z
     .array(gpioDeviceSchema)
     .refine(items => new Set(items.map(i => i.name)).size === items.length, {
-        message: 'GPIO device names must be unique',
+        message: 'GPIO device name must be unique',
     })
 
 export type TGPIODevicesConfig = ReadonlyDeep<z.infer<typeof gpioDevicesSchema>>
+
+const pwmDeviceSchema = gpioDeviceSchema
+    .extend({
+        frequency: z.number({ invalid_type_error: 'PWM frequency must be a number' }).min(0).max(100).default(0.5),
+        initial_value: z
+            .number({ invalid_type_error: 'PWM initial_value must be a number' })
+            .min(0)
+            .max(100)
+            .default(0),
+    })
+    .strict()
+
+export type TPWMDeviceConfig = ReadonlyDeep<z.infer<typeof pwmDeviceSchema>>
+
+const pwmDevicesSchema = z
+    .array(pwmDeviceSchema)
+    .refine(items => new Set(items.map(i => i.name)).size === items.length, {
+        message: 'PWM device name must be unique',
+    })
+
+export type TPWMDevicesConfig = ReadonlyDeep<z.infer<typeof pwmDevicesSchema>>
+
+// const heaterSchema = gpioDeviceSchema
+//     .extend({
+//         name: z.string({
+//             required_error: 'Heater name is required',
+//         }),
+//         gpio: z
+//             .number({
+//                 required_error: 'Heater gpio number is required',
+//                 invalid_type_error: 'Heater gpio must be a number',
+//             })
+//             .min(0)
+//             .max(40),
+//         fan: z.string(),
+//         initial_value: z
+//             .number({ invalid_type_error: 'Heater initial value must be a number' })
+//             .min(0)
+//             .max(100)
+//             .default(0),
+//     })
+//     .strict()
+
+// export type THeaterConfig = ReadonlyDeep<z.infer<typeof heaterSchema>>
+
+// const heatersSchema = z.array(heaterSchema).refine(items => new Set(items.map(i => i.name)).size === items.length, {
+//     message: 'Heater name must be unique',
+// })
+
+// export type THeatersConfig = ReadonlyDeep<z.infer<typeof heatersSchema>>
 
 const configSchema = z
     .object({
@@ -92,6 +140,8 @@ const configSchema = z
         web_server: webServerSchema,
         temperature_sensors: temperatureSensorsSchema,
         gpio_devices: gpioDevicesSchema,
+        pwm_devices: pwmDevicesSchema,
+        //        heaters: heatersSchema,
     })
     .strict()
 
