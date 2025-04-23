@@ -9,6 +9,6 @@ export default class SetPWMHandler extends BaseApiHandler<TRqSetPWMMessage> {
 
     async messageHandler(message: TRqSetPWMMessage) {
         const status = await this.ctx.pwmDevices.write(message.payload.name, message.payload.value)
-        this.ctx.server.sendMessage(createRsSetPWMMessage(status))
+        this.ctx.ebus.emit(createRsSetPWMMessage(status))
     }
 }

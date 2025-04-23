@@ -1,10 +1,10 @@
 import { Server } from 'node:http'
 import express, { type Application } from 'express'
 import { WebSocketServer, WebSocket } from 'ws'
-import type { TWebServerConfig } from '../../utils/readConfig.ts'
+import type { TWebServerConfig } from '../../config-reader/readConfig.types.ts'
 import callbackAsyncWrapper from '../../utils/callbackAsyncWrapper.ts'
 import EventEmitter from 'node:events'
-import parceMessage from '../../msg-schema/messageParcer.ts'
+import parseMessage from '../../msg-schema/messageParser.ts'
 
 export default class WebServer extends EventEmitter {
     private config: TWebServerConfig
@@ -68,7 +68,7 @@ export default class WebServer extends EventEmitter {
 
         if (!trimmed) return
 
-        const msg = parceMessage(trimmed)
+        const msg = parseMessage(trimmed)
         this.emit('message', msg)
     }
 }

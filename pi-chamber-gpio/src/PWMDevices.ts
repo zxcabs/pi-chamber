@@ -5,7 +5,7 @@ import { PWMDevice } from './devices/PWMDevice.ts'
 
 export default class PWMDevices extends BaseDevices<TPWMDevicesConfig, IPWMDevice, TPWMValue, IPWMDeviceResult> {
     constructor(config: TPWMDevicesConfig) {
-        super()
+        super(config)
         this.devices = config.map(config => new PWMDevice(config))
     }
 }

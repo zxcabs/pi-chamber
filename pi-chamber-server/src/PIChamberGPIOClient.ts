@@ -1,9 +1,9 @@
 import { Socket } from 'node:net'
-import type { TConfig } from '../../utils/readConfig.ts'
+import type { TConfig } from '../../config-reader/readConfig.types.ts'
 import callbackAsyncWrapper from '../../utils/callbackAsyncWrapper.ts'
 import EventEmitter from 'node:events'
 import type { TBaseMessage } from '../../msg-schema/BaseMessage.ts'
-import parceMessage from '../../msg-schema/messageParcer.ts'
+import parseMessage from '../../msg-schema/messageParser.ts'
 import { TYPES, createPingMessage, type TPingMessage } from '../../msg-schema/PingPongMessage.ts'
 
 export default class PIChamberGPIOClient extends EventEmitter {
@@ -106,7 +106,7 @@ export default class PIChamberGPIOClient extends EventEmitter {
         const trimmed = msgString.trim()
 
         if (trimmed) {
-            const msg = parceMessage(trimmed)
+            const msg = parseMessage(trimmed)
             if (msg.type === TYPES.PONG) {
                 if (msg.uid !== this.currentPingMsg.uid) {
                     this.emit('error', 'Wrong ping uid')

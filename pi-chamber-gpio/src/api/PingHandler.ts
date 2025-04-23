@@ -8,6 +8,6 @@ export default class PingHandler extends BaseApiHandler<TPingMessage> {
     }
 
     messageHandler(message: TPingMessage): void {
-        this.ctx.server.sendMessage(createPongMessage(message.uid))
+        this.ctx.ebus.emit(createPongMessage(message.uid))
     }
 }

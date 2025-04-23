@@ -5,7 +5,7 @@ import { BaseDevices } from './BaseDevices.ts'
 
 export default class GPIODevices extends BaseDevices<TGPIODevicesConfig, IGPIODevice, TGPIOValue, IGPIODeviceResult> {
     constructor(config: TGPIODevicesConfig) {
-        super()
+        super(config)
         this.devices = config.map(config => new GPIODevice(config))
     }
 }

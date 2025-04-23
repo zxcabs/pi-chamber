@@ -8,7 +8,7 @@ export class BaseDevices<
 > {
     protected devices: Array<TDevice>
 
-    constructor() {}
+    constructor(private config: TDevicesConfig) {}
 
     async connect(): Promise<void> {
         await Promise.all(this.devices?.map(device => device.connect()))

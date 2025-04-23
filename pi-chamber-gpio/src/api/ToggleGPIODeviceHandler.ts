@@ -15,6 +15,6 @@ export default class ToggleGPIODeviceHandler extends BaseApiHandler<TRqToggleGPI
     async messageHandler(message: TRqToggleGPIODeviceMessage) {
         const current = await this.ctx.gpioDevices.read(message.payload.name)
         const toggled = await this.ctx.gpioDevices.write(current.name, (current.value ^ 1) as TGPIOValue)
-        this.ctx.server.sendMessage(createRsToggleGPIODeviceMessage(toggled))
+        this.ctx.ebus.emit(createRsToggleGPIODeviceMessage(toggled))
     }
 }

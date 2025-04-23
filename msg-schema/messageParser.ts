@@ -1,4 +1,4 @@
-import { ZodAny } from 'zod'
+import { ZodSchema } from 'zod'
 import { BaseMessageSchema, type TBaseMessage } from './BaseMessage.ts'
 import { PingSchema, PongSchema, TYPES as PP_TYPES } from './PingPongMessage.ts'
 import { EventStatusSchema, RqStatusSchema, RsStatusSchema, TYPES as STATUS_TYPES } from './StatusMessage.ts'
@@ -27,7 +27,7 @@ const SCHEMAS_BY_TYPE = {
     [SHUTDOWN_TYPES.RQ_SHUTDOWN]: RqShutdownSchema,
 }
 
-export default function parceMessage(data: string): TBaseMessage {
+export default function parseMessage(data: string): TBaseMessage {
     let json = {}
 
     try {
@@ -37,7 +37,54 @@ export default function parceMessage(data: string): TBaseMessage {
     }
 
     const msg = BaseMessageSchema.parse(json)
-    const schema: ZodAny = SCHEMAS_BY_TYPE[msg?.type]
+    const schema: ZodSchema = SCHEMAS_BY_TYPE[msg?.type]
 
     return schema ? schema.parse(json) : msg
+}
+
+export type TSafeParseResult<T> = { success: true; data: T; error?: Error } | { success: false; error: Error }
+
+export function safeParseMessage<T extends TBaseMessage>(msgString: string): TSafeParseResult<T> {
+    let parsedJson: T
+
+    try {
+        parsedJson = JSON.parse(msgString) as T
+    } catch (error) {
+        return {
+            success: false,
+            error: error instanceof Error ? error : new Error('Invalid JSON'),
+        }
+    }
+
+    const messageType = parsedJson.type
+
+    if (!messageType) {
+        return {
+            success: false,
+            error: new Error('Message type is missing'),
+        }
+    }
+
+    const schema = SCHEMAS_BY_TYPE[messageType]
+
+    if (!schema) {
+        return {
+            success: false,
+            error: new Error(`Unknown message type: ${messageType}`),
+        }
+    }
+
+    const result = schema.safeParse(parsedJson)
+
+    if (!result.success) {
+        return {
+            success: false,
+            error: new Error(result.error.message),
+        }
+    }
+
+    return {
+        success: true,
+        data: result.data as T,
+    }
 }

@@ -15,11 +15,11 @@ export abstract class BaseApiHandler<TMessage extends TBaseMessage = TBaseMessag
     }
 
     private registerMessageHandler(): void {
-        this.ctx.server.on('message', this.messageListener)
+        this.ctx.ebus.on(this.messageType, this.messageListener)
     }
 
     private unregisterMessageHandler(): void {
-        this.ctx.server.off('message', this.messageListener)
+        this.ctx.ebus.off(this.messageType, this.messageListener)
     }
 
     private handleIncomingMessage(msg: TBaseMessage): void {
