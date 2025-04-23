@@ -1,6 +1,12 @@
 import { z } from 'zod'
 
-const MAX31865OptionsSchema = z.object({
+export const nameSchema = z.string({
+    required_error: 'Temperature sensor name is required',
+})
+
+export const typeSchema = z.string()
+
+export const MAX31865OptionsSchema = z.object({
     bus: z.number().min(0).default(0),
     device: z.number().min(0).default(0),
     wires: z.number().min(2).max(4).default(3),
@@ -10,10 +16,8 @@ const MAX31865OptionsSchema = z.object({
 
 export const temperatureSensorSchema = z
     .object({
-        name: z.string({
-            required_error: 'Temperature sensor name is required',
-        }),
-        type: z.string(),
+        name: nameSchema,
+        type: typeSchema,
         options: MAX31865OptionsSchema,
     })
     .strict()
