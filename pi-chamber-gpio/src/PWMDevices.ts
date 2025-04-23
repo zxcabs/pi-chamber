@@ -1,4 +1,4 @@
-import type { TPWMDevicesConfig } from '../../utils/readConfig.ts'
+import type { TPWMDevicesConfig } from '../../config-reader/readConfig.ts'
 import { BaseDevices } from './BaseDevices.ts'
 import type { IPWMDevice, IPWMDeviceResult, TPWMValue } from './devices/types/IPWMDevice.type.ts'
 import { PWMDevice } from './devices/PWMDevice.ts'

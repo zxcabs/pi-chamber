@@ -1,5 +1,5 @@
 import { Gpio, type BinaryValue } from 'onoff'
-import type { TGPIODeviceConfig } from '../../../utils/readConfig.ts'
+import type { TGPIODeviceConfig } from '../../../config-reader/readConfig.types.ts'
 import type { IGPIODevice, IGPIODeviceResult, TGPIOValue } from './types/IGPIODevice.type.ts'
 import { EDeviceTypes } from './types/IBaseDeviceResult.types.ts'
 

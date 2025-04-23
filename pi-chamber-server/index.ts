@@ -1,5 +1,5 @@
 import PIChamberServer from './src/PIChamberServer.ts'
-import { readConfig } from '../utils/readConfig.ts'
+import { readConfig } from '../config-reader/readConfig.ts'
 
 const configPath: string = process.env.CONFIG ?? ''
 const config = readConfig(configPath)

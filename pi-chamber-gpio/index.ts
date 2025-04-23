@@ -1,5 +1,5 @@
 import PIChamberGPIO from './src/PIChamberGPIO.ts'
-import { readConfig } from '../utils/readConfig.ts'
+import { readConfig } from '../config-reader/readConfig.ts'
 
 const configPath: string = process.env.CONFIG ?? ''
 

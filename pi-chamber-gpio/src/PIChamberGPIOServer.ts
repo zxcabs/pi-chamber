@@ -1,7 +1,7 @@
 import { existsSync, unlinkSync } from 'node:fs'
 import { Server, Socket } from 'node:net'
 import EventEmitter from 'node:events'
-import type { TGeneralConfig } from '../../utils/readConfig.ts'
+import type { TGeneralConfig } from '../../config-reader/readConfig.types.ts'
 import callbackAsyncWrapper from '../../utils/callbackAsyncWrapper.ts'
 import parceMessage from '../../msg-schema/messageParcer.ts'
 import type { TBaseMessage } from '../../msg-schema/BaseMessage.ts'
@@ -100,8 +100,15 @@ export default class PIChamberGPIOServer extends EventEmitter {
         const trimmed = msgString.trim()
 
         if (trimmed) {
-            const msg = parceMessage(trimmed)
-            this.emit('message', msg)
+            try {
+                this.emitMessage(parceMessage(trimmed))
+            } catch (e) {
+                console.error('Error on parse message: ', e)
+            }
         }
+    }
+
+    emitMessage(msg: TBaseMessage): void {
+        this.emit('message', msg)
     }
 }

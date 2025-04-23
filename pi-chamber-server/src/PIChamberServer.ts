@@ -1,5 +1,5 @@
 import type { TBaseMessage } from '../../msg-schema/BaseMessage.ts'
-import type { TConfig } from '../../utils/readConfig.ts'
+import type { TConfig } from '../../config-reader/readConfig.types.ts'
 import PIChamberGPIOClient from './PIChamberGPIOClient.ts'
 import WebServer from './WebServer.ts'
 

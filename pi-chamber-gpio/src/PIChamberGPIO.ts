@@ -1,4 +1,4 @@
-import { type TConfig } from '../../utils/readConfig.ts'
+import { type TConfig } from '../../config-reader/readConfig.ts'
 import TemperatureSensors from './TemperatureSensors.ts'
 import PIChamberGPIOServer from './PIChamberGPIOServer.ts'
 import { GPIODevices } from './GPIODevices.ts'

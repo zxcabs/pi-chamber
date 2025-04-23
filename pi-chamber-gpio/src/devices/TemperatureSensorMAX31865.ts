@@ -1,5 +1,5 @@
 import type { ITemperatureSensor, ITemperatureSensorReadResult } from './types/ITemperatureSensor.type.ts'
-import type { TTemeperatureSensorConfig } from '../../../utils/readConfig.ts'
+import type { TTemeperatureSensorConfig } from '../../../config-reader/readConfig.types.ts'
 import MAX31865 from 'max31865'
 import { EDeviceTypes } from './types/IBaseDeviceResult.types.ts'
 

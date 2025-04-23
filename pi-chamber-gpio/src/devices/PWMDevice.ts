@@ -1,5 +1,5 @@
 import { Gpio, type BinaryValue } from 'onoff'
-import type { TPWMDeviceConfig } from '../../../utils/readConfig.ts'
+import type { TPWMDeviceConfig } from '../../../config-reader/readConfig.types.ts'
 import { EDeviceTypes } from './types/IBaseDeviceResult.types.ts'
 import type { IPWMDevice, IPWMDeviceResult, TPWMValue } from './types/IPWMDevice.type.ts'
 
