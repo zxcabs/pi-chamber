@@ -6,6 +6,7 @@ import { TYPES as PP_TYPES } from '../../../msg-schema/PingPongMessage.ts'
 import { TYPES as STATUS_TYPES } from '../../../msg-schema/StatusMessage.ts'
 import { TYPES as TOGGLE_TYPES } from '../../../msg-schema/ToggleGPIODeviceMessage.ts'
 import { TYPES as PWM_TYPES } from '../../../msg-schema/PWMDeviceMessage.ts'
+import { TYPES as HC_TYPES } from '../../../msg-schema/HeatingChamberMessage.ts'
 
 export class SocketServerEventBridge {
     private readonly unsubscribers: (() => void)[] = []
@@ -15,6 +16,7 @@ export class SocketServerEventBridge {
         STATUS_TYPES.EVENT_STATUS,
         TOGGLE_TYPES.RS_TOGGLE_GPIO_DEVICE,
         PWM_TYPES.RS_SET_PWM,
+        HC_TYPES.RS_HEATING_CHAMBERS,
     ]
 
     constructor(

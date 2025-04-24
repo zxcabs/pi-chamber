@@ -4,8 +4,8 @@ import PingHandler from './api/PingHandler.ts'
 import StatusHandler from './api/StatusHandler.ts'
 import ToggleGPIODeviceHandler from './api/ToggleGPIODeviceHandler.ts'
 import ShutdownHandler from './api/ShutdownHandler.ts'
-
 import SetPWMHandler from './api/SetPWMHandler.ts'
+import HeatingChambersHandler from './api/HeatingChambersHandler.ts'
 
 export default class APIHandler {
     private apiHandlers: BaseApiHandler[]
@@ -18,6 +18,7 @@ export default class APIHandler {
             new ToggleGPIODeviceHandler(this.ctx),
             new ShutdownHandler(this.ctx),
             new SetPWMHandler(this.ctx),
+            new HeatingChambersHandler(this.ctx),
         ]
     }
 

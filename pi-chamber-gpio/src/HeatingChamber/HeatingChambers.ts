@@ -1,11 +1,15 @@
 import type { THeatingChambersConfig } from '../../../config-reader/readConfig.types.ts'
 import type EventBus from '../EventBus.ts'
 import HeatingChamber from './HeatingChamber.ts'
+import type { IHeatingChamberResult } from './HeatingChamber.type.ts'
 
 export default class HeatingChambers {
     private chambers: HeatingChamber[]
 
-    constructor(private config: THeatingChambersConfig, ebus: EventBus) {
+    constructor(
+        private config: THeatingChambersConfig,
+        ebus: EventBus,
+    ) {
         this.chambers = this.config.map(heatinChamberConfig => new HeatingChamber(heatinChamberConfig, ebus))
     }
 
@@ -15,5 +19,9 @@ export default class HeatingChambers {
 
     async release(): Promise<void> {
         await Promise.all(this.chambers.map(chamber => chamber.release()))
+    }
+
+    async readAll(): Promise<IHeatingChamberResult[]> {
+        return await Promise.all(this.chambers.map(chamber => chamber.read()))
     }
 }
