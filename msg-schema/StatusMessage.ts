@@ -1,5 +1,5 @@
 import { z } from 'zod'
-import { BaseMessageSchema, createMessage } from './BaseMessage.ts'
+import { BaseMessageSchema, createMessage, createResponceMessage, type TBaseMessageUUID } from './BaseMessage.ts'
 import { GPIODeviceSchema, PWMDeviceSchema, TemperatureSensorSchema } from './DeviceStatus.ts'
 
 export const TYPES = {
@@ -40,8 +40,8 @@ export function createRqStatusMessage(): TRqStatusMessage {
     return createMessage(RqStatusSchema, TYPES.RQ_STATUS)
 }
 
-export function createRsStatusMessage(payload: TRsStatusMessagePayload): TRsStatusMessage {
-    return createMessage(RsStatusSchema, TYPES.RS_STATUS, payload)
+export function createRsStatusMessage(payload: TRsStatusMessagePayload, uid: TBaseMessageUUID): TRsStatusMessage {
+    return createResponceMessage(RsStatusSchema, TYPES.RS_STATUS, uid, payload)
 }
 
 export function createEventStatusMessage(payload: TRsStatusMessagePayload): TEventStatusMessage {

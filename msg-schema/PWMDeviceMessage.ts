@@ -1,6 +1,6 @@
 import { z } from 'zod'
-import { BaseMessageSchema, createMessage } from './BaseMessage.ts'
-import { DeviceNameSchema, DeviceValueSchema, GPIODeviceSchema, PWMDeviceSchema } from './DeviceStatus.ts'
+import { BaseMessageSchema, createMessage, createResponceMessage, type TBaseMessageUUID } from './BaseMessage.ts'
+import { DeviceNameSchema, DeviceValueSchema, PWMDeviceSchema } from './DeviceStatus.ts'
 
 export const TYPES = {
     RQ_SET_PWM: 'RQ_SET_PWM',
@@ -36,6 +36,6 @@ export function createRqSetPWMMessage(payload: TRqSetPWMPayloadMessage): TRqSetP
     return createMessage(RqSetPWMMessageSchema, TYPES.RQ_SET_PWM, payload)
 }
 
-export function createRsSetPWMMessage(payload: TRsSetPWMMessagePayload): TRsSetPWMMessage {
-    return createMessage(RsSetPWMMessageSchema, TYPES.RS_SET_PWM, payload)
+export function createRsSetPWMMessage(payload: TRsSetPWMMessagePayload, uid: TBaseMessageUUID): TRsSetPWMMessage {
+    return createResponceMessage(RsSetPWMMessageSchema, TYPES.RS_SET_PWM, uid, payload)
 }

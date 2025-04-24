@@ -1,5 +1,5 @@
 import { z } from 'zod'
-import { BaseMessageSchema, createMessage } from './BaseMessage.ts'
+import { BaseMessageSchema, createMessage, createResponceMessage, type TBaseMessageUUID } from './BaseMessage.ts'
 import { DeviceNameSchema, GPIODeviceSchema } from './DeviceStatus.ts'
 
 export const TYPES = {
@@ -39,6 +39,7 @@ export function createRqToggleGPIODeviceMessage(
 
 export function createRsToggleGPIODeviceMessage(
     payload: TRsToggleGPIODeviceMessagePayload,
+    uid: TBaseMessageUUID,
 ): TRsToggleGPIODeviceMessage {
-    return createMessage(RsToggleGPIODeviceMessageSchema, TYPES.RS_TOGGLE_GPIO_DEVICE, payload)
+    return createResponceMessage(RsToggleGPIODeviceMessageSchema, TYPES.RS_TOGGLE_GPIO_DEVICE, uid, payload)
 }

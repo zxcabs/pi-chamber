@@ -46,9 +46,9 @@ export default class StatusHandler extends BaseApiHandler<TRqStatusMessage> {
         this.timerId = setTimeout(() => this.sendEventStatus(), this.ctx.config.general.status_timeinterval)
     }
 
-    async messageHandler(): Promise<void> {
+    async messageHandler(messsage: TRqStatusMessage): Promise<void> {
         const payload = await this.getStatusPayload()
-        const statusMsg = createRsStatusMessage(payload)
+        const statusMsg = createRsStatusMessage(payload, messsage.uid)
         this.ctx.ebus.emit(statusMsg)
     }
 

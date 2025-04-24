@@ -27,7 +27,7 @@ class PIChamberGPIO {
         this.temperatureSensors = new TemperatureSensors(config.temperature_sensors)
         this.gpioDevices = new GPIODevices(config.gpio_devices)
         this.pwmDevices = new PWMDevices(config.pwm_devices)
-        this.heatingChambers = new HeatingChambers(config.heating_chambers)
+        this.heatingChambers = new HeatingChambers(config.heating_chambers, this.ebus)
         this.apiHandler = new APIHandler(this)
 
         this.serverBridge = new SocketServerEventBridge(this.server, this.ebus)

@@ -17,6 +17,7 @@ const BaseMessageTimestampSchema = z.number().finite().describe('Message timesta
 const BaseMessagePayoadSchema = z.object({}).nullable().optional().describe('Message payload')
 
 export type TBaseMessageType = z.infer<typeof BaseMessageTypeSchema>
+export type TBaseMessageUUID = z.infer<typeof BaseMessageUidSchema>
 
 export const BaseMessageSchema = z.object({
     type: BaseMessageTypeSchema,
@@ -38,6 +39,20 @@ export function createMessage<S extends SchemaWithType<T>, T extends string>(
 ): z.infer<S> {
     return schema.parse({
         uid: randomUUID(),
+        type,
+        timestamp: Date.now(),
+        payload,
+    })
+}
+
+export function createResponceMessage<S extends SchemaWithType<T>, T extends string>(
+    schema: S,
+    type: T,
+    uid: TBaseMessageUUID = randomUUID(),
+    payload?: Object | undefined,
+): z.infer<S> {
+    return schema.parse({
+        uid,
         type,
         timestamp: Date.now(),
         payload,

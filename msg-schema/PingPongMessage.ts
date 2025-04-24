@@ -1,6 +1,6 @@
 import { z } from 'zod'
 import type { ReadonlyDeep } from 'type-fest'
-import { BaseMessageSchema, createMessage } from './BaseMessage.ts'
+import { BaseMessageSchema, createMessage, createResponceMessage, type TBaseMessageUUID } from './BaseMessage.ts'
 
 export const TYPES = {
     PING: 'PING',
@@ -26,9 +26,6 @@ export function createPingMessage(): TPingMessage {
     return createMessage(PingSchema, TYPES.PING)
 }
 
-export function createPongMessage(uid: string): TPongMessage {
-    const pongMsg = createMessage(PongSchema, TYPES.PONG)
-    pongMsg.uid = uid
-
-    return pongMsg
+export function createPongMessage(uid: TBaseMessageUUID): TPongMessage {
+    return createResponceMessage(PongSchema, TYPES.PONG, uid)
 }

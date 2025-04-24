@@ -33,7 +33,3 @@ export type TPWMDeviceData = z.infer<typeof GPIODeviceSchema>
 export const TemperatureSensorSchema = BaseDeviceSchema.extend({}).describe('Temperature sensor data')
 
 export type TTemperatureSensorData = z.infer<typeof TemperatureSensorSchema>
-
-// Heaters sesors message field
-//export const HeaterSchema = BaseDeviceSchema.extend({}).describe('Heater data')
-//export type THeaterData = z.infer<typeof HeaterSchema>
