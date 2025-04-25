@@ -1,4 +1,4 @@
-import type EventBus from '../EventBus.ts'
+import type EventBus from '../EventBus/EventBus.ts'
 import type PIChamberGPIOServer from './PIChamberGPIOServer.ts'
 import { safeParseMessage, type TSafeParseResult } from '../../../msg-schema/messageParser.ts'
 import type { TBaseMessage, TBaseMessageType } from '../../../msg-schema/BaseMessage.ts'
@@ -7,9 +7,9 @@ import { TYPES as STATUS_TYPES } from '../../../msg-schema/StatusMessage.ts'
 import { TYPES as TOGGLE_TYPES } from '../../../msg-schema/ToggleGPIODeviceMessage.ts'
 import { TYPES as PWM_TYPES } from '../../../msg-schema/PWMDeviceMessage.ts'
 import { TYPES as HC_TYPES } from '../../../msg-schema/HeatingChamberMessage.ts'
+import EventBusBridge from '../EventBus/EventBusBridge.ts'
 
-export class SocketServerEventBridge {
-    private readonly unsubscribers: (() => void)[] = []
+export class SocketServerEventBridge extends EventBusBridge {
     private readonly socketMessageTypes: TBaseMessageType[] = [
         PP_TYPES.PONG,
         STATUS_TYPES.RS_STATUS,
@@ -17,12 +17,14 @@ export class SocketServerEventBridge {
         TOGGLE_TYPES.RS_TOGGLE_GPIO_DEVICE,
         PWM_TYPES.RS_SET_PWM,
         HC_TYPES.RS_HEATING_CHAMBERS,
+        HC_TYPES.EVENT_HEATING_CHAMBER_STATE,
     ]
 
     constructor(
         private readonly server: PIChamberGPIOServer,
-        private readonly eventBus: EventBus,
+        eventBus: EventBus,
     ) {
+        super(eventBus)
         this.setupServerListeners()
         this.setupEBusListeners()
     }
@@ -65,8 +67,7 @@ export class SocketServerEventBridge {
 
     private setupEBusListeners(): void {
         this.socketMessageTypes.forEach(type => {
-            const unsubscribe = this.eventBus.on(type, this.handleEventBusMessage.bind(this))
-            this.registerUnsubscriber(unsubscribe)
+            this.setupEBusListener(type, this.handleEventBusMessage)
         })
     }
 
@@ -79,10 +80,6 @@ export class SocketServerEventBridge {
         }
     }
 
-    private registerUnsubscriber(unsubscriber: () => void): void {
-        this.unsubscribers.push(unsubscriber)
-    }
-
     private handleMessageError(error: Error): void {
         console.error('Message processing error:', error.message)
     }
@@ -93,16 +90,5 @@ export class SocketServerEventBridge {
 
     private handleProcessingError(error: unknown): void {
         console.error('Unexpected processing error:', error)
-    }
-
-    public release(): void {
-        this.unsubscribers.forEach(unsubscribe => {
-            try {
-                unsubscribe()
-            } catch (error) {
-                console.error('Error during unsubscription:', error)
-            }
-        })
-        this.unsubscribers.length = 0
     }
 }

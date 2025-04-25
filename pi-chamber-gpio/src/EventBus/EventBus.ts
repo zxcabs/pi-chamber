@@ -1,5 +1,5 @@
 import EventEmitter from 'node:events'
-import type { TBaseMessage, TBaseMessageType } from '../../msg-schema/BaseMessage.ts'
+import type { TBaseMessage, TBaseMessageType } from '../../../msg-schema/BaseMessage.ts'
 
 export default class EventBus {
     private readonly ee: EventEmitter = new EventEmitter()

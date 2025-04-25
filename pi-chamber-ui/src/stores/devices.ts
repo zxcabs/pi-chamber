@@ -7,58 +7,44 @@ import { TYPES as TOGGLE_TYPES, type TRsToggleGPIODeviceMessage } from '../../..
 import { TYPES as PWM_TYPES, type TRsSetPWMMessage } from '../../../msg-schema/PWMDeviceMessage'
 import createStoreMessageHandler from '../utils/createStoreMessageHandler'
 
-export type TDevices = Writable<TBaseDevice[]>
-
+export type TDevice = TBaseDevice
+export type TDevices = Writable<TDevice[]>
 export const devices: TDevices = writable([])
+
+const updateDevice =
+    <T extends TDevice>(newDevice: T) =>
+    (currentDevices: TDevice[]) => {
+        const index = currentDevices.findIndex(d => d.name === newDevice.name)
+
+        if (index !== -1 && currentDevices[index].time <= newDevice.time) {
+            return [...currentDevices.slice(0, index), newDevice, ...currentDevices.slice(index + 1)]
+        }
+
+        return currentDevices
+    }
+
+const handleSingleDeviceUpdate = <T extends TDevice>(device: T) => {
+    devices.update(updateDevice(device))
+}
 
 const handlers = [
     createStoreMessageHandler<TRsStatusMessage>(STATUS_TYPES.RS_STATUS, message => {
-        const status = message.payload
-        devices.set([
-            ...(status?.temperature_sensors || []),
-            ...(status?.gpio_devices || []),
-            ...(status?.pwm_devices || []),
-        ])
+        const { temperature_sensors = [], gpio_devices = [], pwm_devices = [] } = message.payload
+        devices.set([...temperature_sensors, ...gpio_devices, ...pwm_devices])
     }),
     createStoreMessageHandler<TRsStatusMessage>(STATUS_TYPES.EVENT_STATUS, message => {
-        const status = message.payload
-        const devicesStatus = [
-            ...(status?.temperature_sensors || []),
-            ...(status?.gpio_devices || []),
-            ...(status?.pwm_devices || []),
-        ]
+        const { temperature_sensors = [], gpio_devices = [], pwm_devices = [] } = message.payload
+        const devicesStatus = [...temperature_sensors, ...gpio_devices, ...pwm_devices]
 
-        devices.update(values => {
-            return devicesStatus.reduce((acc, device) => {
-                const index = acc.findIndex(({ name }) => name === device.name)
-
-                if (index < 0 || acc[index].time > device.time) return acc
-
-                return [...acc.slice(0, index), device, ...acc.slice(index + 1)]
-            }, values)
-        })
+        devices.update(current => devicesStatus.reduce((acc, device) => updateDevice(device)(acc), current))
     }),
 
-    createStoreMessageHandler<TRsToggleGPIODeviceMessage>(TOGGLE_TYPES.RS_TOGGLE_GPIO_DEVICE, message => {
-        const device = message.payload
-
-        devices.update(values => {
-            const index = values.findIndex(({ name }) => name === device.name)
-
-            if (index < 0 || index < 0 || values[index].time > device.time) return values
-            return [...values.slice(0, index), device, ...values.slice(index + 1)]
-        })
-    }),
-    createStoreMessageHandler<TRsSetPWMMessage>(PWM_TYPES.RS_SET_PWM, message => {
-        const device = message.payload
-
-        devices.update(values => {
-            const index = values.findIndex(({ name }) => name === device.name)
-
-            if (index < 0 || index < 0 || values[index].time > device.time) return values
-            return [...values.slice(0, index), device, ...values.slice(index + 1)]
-        })
-    }),
+    createStoreMessageHandler<TRsToggleGPIODeviceMessage>(TOGGLE_TYPES.RS_TOGGLE_GPIO_DEVICE, message =>
+        handleSingleDeviceUpdate(message.payload),
+    ),
+    createStoreMessageHandler<TRsSetPWMMessage>(PWM_TYPES.RS_SET_PWM, message =>
+        handleSingleDeviceUpdate(message.payload),
+    ),
 ]
 
 export const handleMessage = (message: TBaseMessage) => {

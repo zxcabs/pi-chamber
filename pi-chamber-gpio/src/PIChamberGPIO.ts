@@ -5,7 +5,7 @@ import GPIODevices from './GPIODevices.ts'
 import PWMDevices from './PWMDevices.ts'
 import HeatingChambers from './HeatingChamber/HeatingChambers.ts'
 import APIHandler from './APIHandler.ts'
-import EventBus from './EventBus.ts'
+import EventBus from './EventBus/EventBus.ts'
 import { SocketServerEventBridge } from './SocketServer/SocketServerEventBridge.ts'
 
 class PIChamberGPIO {

@@ -18,7 +18,8 @@
     class="chamber"
     aria-label={`Chamber ${name || 'unknown'}`}
 >
-    {name}
+    <div>{name}</div>
+    <div>{JSON.stringify(chamber.state, null, 2)}</div>
 </div>
 
 <style>
@@ -29,8 +30,8 @@
         border-radius: 4px;
         margin: 0.5rem 0;
         display: flex;
-        width: 100px;
-        height: 100px;
+        width: 300px;
+        height: 300px;
         flex-direction: column;
     }
 

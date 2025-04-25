@@ -1,5 +1,5 @@
 import type { THeatingChambersConfig } from '../../../config-reader/readConfig.types.ts'
-import type EventBus from '../EventBus.ts'
+import type EventBus from '../EventBus/EventBus.ts'
 import HeatingChamber from './HeatingChamber.ts'
 import type { IHeatingChamberResult } from './HeatingChamber.type.ts'
 

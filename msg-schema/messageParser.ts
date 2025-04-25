@@ -9,7 +9,12 @@ import {
 } from './ToggleGPIODeviceMessage.ts'
 import { TYPES as PWM_TYPES, RqSetPWMMessageSchema, RsSetPWMMessageSchema } from './PWMDeviceMessage.ts'
 import { RqShutdownSchema, TYPES as SHUTDOWN_TYPES } from './ShutdownMessage.ts'
-import { RqHeatingChambersSchema, RsHeatingChambersSchema, TYPES as HC_TYPES } from './HeatingChamberMessage.ts'
+import {
+    RqHeatingChambersSchema,
+    RsHeatingChambersSchema,
+    TYPES as HC_TYPES,
+    EventHeatingChamberStateSchema,
+} from './HeatingChamberMessage.ts'
 
 const SCHEMAS_BY_TYPE = {
     [PP_TYPES.PING]: PingSchema,
@@ -27,6 +32,7 @@ const SCHEMAS_BY_TYPE = {
 
     [HC_TYPES.RQ_HEATING_CHAMBERS]: RqHeatingChambersSchema,
     [HC_TYPES.RS_HEATING_CHAMBERS]: RsHeatingChambersSchema,
+    [HC_TYPES.EVENT_HEATING_CHAMBER_STATE]: EventHeatingChamberStateSchema,
 
     [SHUTDOWN_TYPES.RQ_SHUTDOWN]: RqShutdownSchema,
 }
