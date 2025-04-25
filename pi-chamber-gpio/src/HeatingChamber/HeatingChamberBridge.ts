@@ -105,8 +105,9 @@ export default class HeatingChamberBridge extends EventBusBridge {
 
     emitState() {
         const state = this.ctx.state.getCurrentState()
+        this.ctx.onStateUpdate(state)
 
-        this.eventBus.emit(
+        this.sendMessage(
             createEventHeatingChamberSateMessage({
                 name: this.ctx.config.name,
                 state,

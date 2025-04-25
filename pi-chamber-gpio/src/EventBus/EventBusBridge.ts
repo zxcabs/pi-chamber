@@ -15,6 +15,10 @@ export default class EventBusBridge {
         this.unsubscribers.push(unsubscriber)
     }
 
+    public sendMessage(message: TBaseMessage) {
+        this.eventBus.emit(message)
+    }
+
     public release(): void {
         this.unsubscribers.forEach(unsubscribe => {
             try {
