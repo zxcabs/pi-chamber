@@ -1,30 +1,36 @@
-import type { TRsSetPWMMessage } from '../../../msg-schema/PWMDeviceMessage.ts'
-import { TYPES as STATUS_TYPES, type TRsStatusMessage } from '../../../msg-schema/StatusMessage.ts'
-import { TYPES as PWM_TYPES } from '../../../msg-schema/PWMDeviceMessage.ts'
-import { TYPES as TOGGLE_TYPES } from '../../../msg-schema/ToggleGPIODeviceMessage.ts'
+import type { TResponseSetPWMMessage } from '../../../msg-schema/SetPWMDeviceMessage.ts'
+import {
+    NAME_STATUS,
+    type TEventStatusMessage,
+    type TResponseStatusMessage,
+} from '../../../msg-schema/StatusMessage.ts'
+import { NAME_SET_PWM } from '../../../msg-schema/SetPWMDeviceMessage.ts'
+import {
+    NAME_TOGGLE_GPIO_DEVICE,
+    type TResponseToggleGPIODeviceMessage,
+} from '../../../msg-schema/ToggleGPIODeviceMessage.ts'
 import type { IGPIODeviceResult } from '../devices/types/IGPIODevice.type.ts'
 import type { IPWMDeviceResult } from '../devices/types/IPWMDevice.type.ts'
 import type { ITemperatureSensorReadResult } from '../devices/types/ITemperatureSensor.type.ts'
-import type EventBus from '../EventBus/EventBus.ts'
-import EventBusBridge from '../EventBus/EventBusBridge.ts'
 import type HeatingChamber from './HeatingChamber.ts'
-import type { TRsToggleGPIODeviceMessage } from '../../../msg-schema/ToggleGPIODeviceMessage.ts'
 import { createEventHeatingChamberSateMessage } from '../../../msg-schema/HeatingChamberMessage.ts'
+import MessageBusBridge from '../../../msg-bus/MessageBusBridge.ts'
+import type MessageBus from '../../../msg-bus/MessageBus.ts'
 
-export default class HeatingChamberBridge extends EventBusBridge {
+export default class HeatingChamberBridge extends MessageBusBridge {
     constructor(
         private ctx: HeatingChamber,
-        ebus: EventBus,
+        ebus: MessageBus,
     ) {
         super(ebus)
 
-        this.setupEBusListener(STATUS_TYPES.RS_STATUS, this.handleStatusMessage)
-        this.setupEBusListener(STATUS_TYPES.EVENT_STATUS, this.handleStatusMessage)
-        this.setupEBusListener(PWM_TYPES.RS_SET_PWM, this.handleSetPWMMessage)
-        this.setupEBusListener(TOGGLE_TYPES.RS_TOGGLE_GPIO_DEVICE, this.handleToggleGPIODeviceMessage)
+        this.setupBusNamedResponseListener(NAME_STATUS, this.handleStatusMessage)
+        this.setupBusNamedEventListener(NAME_STATUS, this.handleStatusMessage)
+        this.setupBusNamedResponseListener(NAME_SET_PWM, this.handleSetPWMMessage)
+        this.setupBusNamedResponseListener(NAME_TOGGLE_GPIO_DEVICE, this.handleToggleGPIODeviceMessage)
     }
 
-    private handleStatusMessage(message: TRsStatusMessage) {
+    private handleStatusMessage(message: TResponseStatusMessage & TEventStatusMessage) {
         const temperatureSensorNames = this.ctx.config.temperature_sensors
         const temperatureSensorsData = message.payload.temperature_sensors
 
@@ -70,9 +76,9 @@ export default class HeatingChamberBridge extends EventBusBridge {
         this.emitState()
     }
 
-    private handleSetPWMMessage(message: TRsSetPWMMessage) {
+    private handleSetPWMMessage(message: TResponseSetPWMMessage) {
         const heaterDeviceNames = this.ctx.config.heaters
-        const pwmDevicesData = message.payload
+        const pwmDevicesData = message.payload.device
 
         heaterDeviceNames?.forEach(name => {
             if (pwmDevicesData.name === name) {
@@ -83,9 +89,9 @@ export default class HeatingChamberBridge extends EventBusBridge {
         this.emitState()
     }
 
-    private handleToggleGPIODeviceMessage(message: TRsToggleGPIODeviceMessage) {
+    private handleToggleGPIODeviceMessage(message: TResponseToggleGPIODeviceMessage) {
         const lightDeviceNames = this.ctx.config.lights
-        const gpioDevicesData = message.payload
+        const gpioDevicesData = message.payload.device
 
         lightDeviceNames?.forEach(name => {
             if (gpioDevicesData.name === name) {

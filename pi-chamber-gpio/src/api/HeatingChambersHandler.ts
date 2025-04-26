@@ -1,18 +1,18 @@
 import type PIChamberGPIO from '../PIChamberGPIO.ts'
 import { BaseApiHandler } from './BaseApiHandler.ts'
 import {
-    createRsHeatingChambersMessage,
-    TYPES,
-    type TRqHeatingChambersMessage,
-    type TRsHeatingChambersPayload,
+    createResponseHeatingChambersMessage,
+    NAME_HEATING_CHAMBERS,
+    type TRequestHeatingChambersMessage,
+    type TResponseHeatingChambersPayload,
 } from '../../../msg-schema/HeatingChamberMessage.ts'
 
-export default class HeatingChambersHandler extends BaseApiHandler<TRqHeatingChambersMessage> {
+export default class HeatingChambersHandler extends BaseApiHandler<TRequestHeatingChambersMessage> {
     constructor(ctx: PIChamberGPIO) {
-        super(ctx, TYPES.RQ_HEATING_CHAMBERS)
+        super(ctx, NAME_HEATING_CHAMBERS)
     }
 
-    async getHeatingChambersPayload(): Promise<TRsHeatingChambersPayload> {
+    async getHeatingChambersPayload(): Promise<TResponseHeatingChambersPayload> {
         const chambers = await this.ctx.heatingChambers.readAll()
 
         return {
@@ -20,8 +20,8 @@ export default class HeatingChambersHandler extends BaseApiHandler<TRqHeatingCha
         }
     }
 
-    async messageHandler(message: TRqHeatingChambersMessage) {
+    async messageHandler(message: TRequestHeatingChambersMessage) {
         const payload = await this.getHeatingChambersPayload()
-        this.ctx.ebus.emit(createRsHeatingChambersMessage(payload, message.uid))
+        this.ctx.ebus.emit(createResponseHeatingChambersMessage(message.uid, payload))
     }
 }

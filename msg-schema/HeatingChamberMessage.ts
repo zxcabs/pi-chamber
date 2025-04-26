@@ -1,19 +1,13 @@
 import { z } from 'zod'
 import type { ReadonlyDeep } from 'type-fest'
-import { BaseMessageSchema, createMessage, createResponceMessage, type TBaseMessageUUID } from './BaseMessage.ts'
+import { Message } from './BaseMessage.ts'
 import { heatingChamberSchema, nameSchema } from '../config-reader/schemas/heatingChambers.ts'
 
-export const TYPES = {
-    RQ_HEATING_CHAMBERS: 'RQ_HEATING_CHAMBERS',
-    RS_HEATING_CHAMBERS: 'RS_HEATING_CHAMBERS',
-    EVENT_HEATING_CHAMBER_STATE: 'EVENT_HEATING_CHAMBER_STATE',
-} as const
+export const NAME_HEATING_CHAMBERS = 'HEATING_CHAMBERS' as const
 
-export const RqHeatingChambersSchema = BaseMessageSchema.extend({
-    type: z.literal(TYPES.RQ_HEATING_CHAMBERS),
-})
+export const requestHeatingChambersSchema = Message.requestMessageSchema.extend({})
 
-export type TRqHeatingChambersMessage = ReadonlyDeep<z.infer<typeof RqHeatingChambersSchema>>
+export type TRequestHeatingChambersMessage = z.infer<typeof requestHeatingChambersSchema>
 
 export const heatingChamberStateSchema = z
     .object({
@@ -27,53 +21,51 @@ export const heatingChamberStateSchema = z
     })
     .describe('Heating chamber state')
 
-export const RsHeatingChamberSchema = z.object({
+export const responseHeatingChamberSchema = z.object({
     config: heatingChamberSchema,
     state: heatingChamberStateSchema,
 })
 
-export type TRsHeatingChamber = ReadonlyDeep<z.infer<typeof RsHeatingChamberSchema>>
+export type TResponseHeatingChamber = z.infer<typeof responseHeatingChamberSchema>
 
-export const RsHeatingChambersPayloadSchema = z.object({
-    heating_chambers: z.array(RsHeatingChamberSchema),
+export const responseHeatingChambersPayloadSchema = Message.responseMessagePayloadSchema.extend({
+    heating_chambers: z.array(responseHeatingChamberSchema),
 })
 
-export type TRsHeatingChambersPayload = ReadonlyDeep<z.infer<typeof RsHeatingChambersPayloadSchema>>
+export type TResponseHeatingChambersPayload = ReadonlyDeep<z.infer<typeof responseHeatingChambersPayloadSchema>>
 
-export const RsHeatingChambersSchema = BaseMessageSchema.extend({
-    type: z.literal(TYPES.RS_HEATING_CHAMBERS),
-    payload: RsHeatingChambersPayloadSchema,
+export const ResponseHeatingChambersSchema = Message.responseMessageSchema.extend({
+    payload: responseHeatingChambersPayloadSchema,
 })
 
-export type TRsHeatingChambersMessage = ReadonlyDeep<z.infer<typeof RsHeatingChambersSchema>>
+export type TResponseHeatingChambersMessage = ReadonlyDeep<z.infer<typeof ResponseHeatingChambersSchema>>
 
-export const EventHeatingChamberStatePayloadSchema = z.object({
+export const eventHeatingChamberStatePayloadSchema = z.object({
     name: nameSchema,
     state: heatingChamberStateSchema,
 })
 
-export type TEventHeatingChamberStatePayload = ReadonlyDeep<z.infer<typeof EventHeatingChamberStatePayloadSchema>>
+export type TEventHeatingChamberStatePayload = z.infer<typeof eventHeatingChamberStatePayloadSchema>
 
-export const EventHeatingChamberStateSchema = BaseMessageSchema.extend({
-    type: z.literal(TYPES.EVENT_HEATING_CHAMBER_STATE),
-    payload: EventHeatingChamberStatePayloadSchema,
+export const eventHeatingChamberStateSchema = Message.eventMessageSchema.extend({
+    payload: eventHeatingChamberStatePayloadSchema,
 })
 
-export type TEventHeatingChamberState = ReadonlyDeep<z.infer<typeof EventHeatingChamberStateSchema>>
+export type TEventHeatingChamberState = ReadonlyDeep<z.infer<typeof eventHeatingChamberStateSchema>>
 
-export function createRqHeatingChambersMessage(): TRqHeatingChambersMessage {
-    return createMessage(RqHeatingChambersSchema, TYPES.RQ_HEATING_CHAMBERS)
+export function createRequestHeatingChambersMessage(): TRequestHeatingChambersMessage {
+    return Message.createRequestMessage(NAME_HEATING_CHAMBERS, requestHeatingChambersSchema)
 }
 
-export function createRsHeatingChambersMessage(
-    payload: TRsHeatingChambersPayload,
-    uid: TBaseMessageUUID,
-): TRsHeatingChambersMessage {
-    return createResponceMessage(RsHeatingChambersSchema, TYPES.RS_HEATING_CHAMBERS, uid, payload)
+export function createResponseHeatingChambersMessage(
+    uid: Message.TUid,
+    payload: TResponseHeatingChambersPayload,
+): TResponseHeatingChambersMessage {
+    return Message.createResponseMessage(uid, NAME_HEATING_CHAMBERS, ResponseHeatingChambersSchema, payload)
 }
 
 export function createEventHeatingChamberSateMessage(
     payload: TEventHeatingChamberStatePayload,
 ): TEventHeatingChamberState {
-    return createMessage(EventHeatingChamberStateSchema, TYPES.EVENT_HEATING_CHAMBER_STATE, payload)
+    return Message.createEventMessage(NAME_HEATING_CHAMBERS, eventHeatingChamberStateSchema, payload)
 }

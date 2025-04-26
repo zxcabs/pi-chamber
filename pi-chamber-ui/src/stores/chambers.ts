@@ -1,11 +1,11 @@
 import { writable } from 'svelte/store'
 import type { Writable } from 'svelte/store'
 import type { IHeatingChamberResult } from '../../../pi-chamber-gpio/src/HeatingChamber/HeatingChamber.type'
-import type { TBaseMessage } from '../../../msg-schema/BaseMessage'
+import { Message } from '../../../msg-schema/BaseMessage'
 import {
+    NAME_HEATING_CHAMBERS,
     type TEventHeatingChamberState,
-    TYPES,
-    type TRsHeatingChambersMessage,
+    type TResponseHeatingChambersMessage,
 } from '../../../msg-schema/HeatingChamberMessage'
 import createStoreMessageHandler from '../utils/createStoreMessageHandler'
 import type { THeatingChamberCurrentState } from '../../../pi-chamber-gpio/src/HeatingChamber/HeatingChamberState'
@@ -33,15 +33,18 @@ const handleSingleChamerStateUpdate = (name: string, newSate: THeatingChamberCur
 }
 
 const handlers = [
-    createStoreMessageHandler<TRsHeatingChambersMessage>(TYPES.RS_HEATING_CHAMBERS, message => {
-        chambers.set([...message.payload.heating_chambers])
-    }),
+    createStoreMessageHandler<TResponseHeatingChambersMessage>(
+        `${Message.TYPE_RESPONSE}:${NAME_HEATING_CHAMBERS}`,
+        message => {
+            chambers.set([...message.payload.heating_chambers])
+        },
+    ),
 
-    createStoreMessageHandler<TEventHeatingChamberState>(TYPES.EVENT_HEATING_CHAMBER_STATE, message => {
+    createStoreMessageHandler<TEventHeatingChamberState>(`${Message.TYPE_EVENT}:${NAME_HEATING_CHAMBERS}`, message => {
         handleSingleChamerStateUpdate(message.payload.name, message.payload.state as THeatingChamberCurrentState)
     }),
 ]
 
-export const handleMessage = (message: TBaseMessage) => {
+export const handleMessage = (message: Message.TMessage) => {
     handlers.forEach(handler => handler(message))
 }

@@ -4,7 +4,7 @@ import { WebSocketServer, WebSocket } from 'ws'
 import type { TWebServerConfig } from '../../config-reader/readConfig.types.ts'
 import callbackAsyncWrapper from '../../utils/callbackAsyncWrapper.ts'
 import EventEmitter from 'node:events'
-import parseMessage from '../../msg-schema/messageParser.ts'
+import safeJsonParse from '../../utils/safeJsonParse.ts'
 
 export default class WebServer extends EventEmitter {
     private config: TWebServerConfig
@@ -68,7 +68,10 @@ export default class WebServer extends EventEmitter {
 
         if (!trimmed) return
 
-        const msg = parseMessage(trimmed)
-        this.emit('message', msg)
+        const parsedResult = safeJsonParse(trimmed)
+
+        if (parsedResult.success) {
+            this.emit('message', parsedResult.data)
+        }
     }
 }

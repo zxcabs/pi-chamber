@@ -1,4 +1,5 @@
 import callbackAsyncWrapper from '../../utils/callbackAsyncWrapper'
+import safeJsonParse from '../../utils/safeJsonParse'
 
 export default class WS {
     private storeHandlers = new Set<Function>()
@@ -68,8 +69,12 @@ export default class WS {
     }
 
     private handleMessage(event: MessageEvent) {
-        const message = JSON.parse(event.data)
-        this.storeHandlers.forEach(handler => handler(message))
+        const parseResult = safeJsonParse(event.data)
+        if (parseResult.success) {
+            this.storeHandlers.forEach(handler => handler(parseResult.data))
+        } else {
+            console.error(parseResult.error)
+        }
     }
 
     private handleError(event: Event) {

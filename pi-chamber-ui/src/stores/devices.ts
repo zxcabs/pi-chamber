@@ -1,11 +1,14 @@
 import { writable } from 'svelte/store'
 import type { Writable } from 'svelte/store'
 import type { TBaseDevice } from '../../../msg-schema/DeviceStatus'
-import type { TBaseMessage } from '../../../msg-schema/BaseMessage'
-import { TYPES as STATUS_TYPES, type TRsStatusMessage } from '../../../msg-schema/StatusMessage'
-import { TYPES as TOGGLE_TYPES, type TRsToggleGPIODeviceMessage } from '../../../msg-schema/ToggleGPIODeviceMessage'
-import { TYPES as PWM_TYPES, type TRsSetPWMMessage } from '../../../msg-schema/PWMDeviceMessage'
+import { Message } from '../../../msg-schema/BaseMessage'
+import { NAME_STATUS, type TResponseStatusMessage } from '../../../msg-schema/StatusMessage'
 import createStoreMessageHandler from '../utils/createStoreMessageHandler'
+import {
+    NAME_TOGGLE_GPIO_DEVICE,
+    type TResponseToggleGPIODeviceMessage,
+} from '../../../msg-schema/ToggleGPIODeviceMessage'
+import { NAME_SET_PWM, type TResponseSetPWMMessage } from '../../../msg-schema/SetPWMDeviceMessage'
 
 export type TDevice = TBaseDevice
 export type TDevices = Writable<TDevice[]>
@@ -28,25 +31,26 @@ const handleSingleDeviceUpdate = <T extends TDevice>(device: T) => {
 }
 
 const handlers = [
-    createStoreMessageHandler<TRsStatusMessage>(STATUS_TYPES.RS_STATUS, message => {
+    createStoreMessageHandler<TResponseStatusMessage>(`${Message.TYPE_RESPONSE}:${NAME_STATUS}`, message => {
         const { temperature_sensors = [], gpio_devices = [], pwm_devices = [] } = message.payload
         devices.set([...temperature_sensors, ...gpio_devices, ...pwm_devices])
     }),
-    createStoreMessageHandler<TRsStatusMessage>(STATUS_TYPES.EVENT_STATUS, message => {
+    createStoreMessageHandler<TResponseStatusMessage>(`${Message.TYPE_RESPONSE}:${NAME_STATUS}`, message => {
         const { temperature_sensors = [], gpio_devices = [], pwm_devices = [] } = message.payload
         const devicesStatus = [...temperature_sensors, ...gpio_devices, ...pwm_devices]
 
         devices.update(current => devicesStatus.reduce((acc, device) => updateDevice(device)(acc), current))
     }),
 
-    createStoreMessageHandler<TRsToggleGPIODeviceMessage>(TOGGLE_TYPES.RS_TOGGLE_GPIO_DEVICE, message =>
-        handleSingleDeviceUpdate(message.payload),
+    createStoreMessageHandler<TResponseToggleGPIODeviceMessage>(
+        `${Message.TYPE_RESPONSE}:${NAME_TOGGLE_GPIO_DEVICE}`,
+        message => handleSingleDeviceUpdate(message.payload.device),
     ),
-    createStoreMessageHandler<TRsSetPWMMessage>(PWM_TYPES.RS_SET_PWM, message =>
-        handleSingleDeviceUpdate(message.payload),
+    createStoreMessageHandler<TResponseSetPWMMessage>(`${Message.TYPE_RESPONSE}:${NAME_SET_PWM}`, message =>
+        handleSingleDeviceUpdate(message.payload.device),
     ),
 ]
 
-export const handleMessage = (message: TBaseMessage) => {
+export const handleMessage = (message: Message.TMessage) => {
     handlers.forEach(handler => handler(message))
 }
