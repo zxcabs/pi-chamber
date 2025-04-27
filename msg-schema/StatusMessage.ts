@@ -1,49 +1,44 @@
 import { z } from 'zod'
-import { BaseMessageSchema, createMessage, createResponceMessage, type TBaseMessageUUID } from './BaseMessage.ts'
+import { Message } from './BaseMessage.ts'
 import { GPIODeviceSchema, PWMDeviceSchema, TemperatureSensorSchema } from './DeviceStatus.ts'
 
-export const TYPES = {
-    RQ_STATUS: 'RQ_STATUS',
-    RS_STATUS: 'RS_STATUS',
-    EVENT_STATUS: 'EVENT_STATUS',
-} as const
+export const NAME_STATUS = 'NAME_STATUS' as const
 
-export const RqStatusSchema = BaseMessageSchema.extend({
-    type: z.literal(TYPES.RQ_STATUS),
-})
+export const requestStatusMessageSchema = Message.requestMessageSchema.extend({})
 
-export type TRqStatusMessage = z.infer<typeof RqStatusSchema>
+export type TRequestStatusMessage = z.infer<typeof requestStatusMessageSchema>
 
-export const RsStatusPayloadSchema = z.object({
+export const responseStatusPayloadSchema = Message.responseMessagePayloadSchema.extend({
     temperature_sensors: z.array(TemperatureSensorSchema).optional().describe('Array of temperature sensors'),
     gpio_devices: z.array(GPIODeviceSchema).optional().describe('Array of gpio device'),
     pwm_devices: z.array(PWMDeviceSchema).optional().describe('Array of gpio device'),
 })
 
-export type TRsStatusMessagePayload = z.infer<typeof RsStatusPayloadSchema>
+export type TResponseStatusMessagePayload = z.infer<typeof responseStatusPayloadSchema>
 
-export const RsStatusSchema = BaseMessageSchema.extend({
-    type: z.literal(TYPES.RS_STATUS),
-    payload: RsStatusPayloadSchema,
+export const responseStatusMessageSchema = Message.responseMessageSchema.extend({
+    payload: responseStatusPayloadSchema,
 })
 
-export type TRsStatusMessage = z.infer<typeof RsStatusSchema>
+export type TResponseStatusMessage = z.infer<typeof responseStatusMessageSchema>
 
-export const EventStatusSchema = BaseMessageSchema.extend({
-    type: z.literal(TYPES.EVENT_STATUS),
-    payload: RsStatusPayloadSchema,
+export const eventStatusMessageSchema = Message.eventMessageSchema.extend({
+    payload: responseStatusPayloadSchema,
 })
 
-export type TEventStatusMessage = z.infer<typeof EventStatusSchema>
+export type TEventStatusMessage = z.infer<typeof eventStatusMessageSchema>
 
-export function createRqStatusMessage(): TRqStatusMessage {
-    return createMessage(RqStatusSchema, TYPES.RQ_STATUS)
+export function createRequestStatusMessage(): TRequestStatusMessage {
+    return Message.createRequestMessage(NAME_STATUS, requestStatusMessageSchema)
 }
 
-export function createRsStatusMessage(payload: TRsStatusMessagePayload, uid: TBaseMessageUUID): TRsStatusMessage {
-    return createResponceMessage(RsStatusSchema, TYPES.RS_STATUS, uid, payload)
+export function createResponseStatusMessage(
+    uid: Message.TUid,
+    payload: TResponseStatusMessagePayload,
+): TResponseStatusMessage {
+    return Message.createResponseMessage(uid, NAME_STATUS, responseStatusMessageSchema, payload)
 }
 
-export function createEventStatusMessage(payload: TRsStatusMessagePayload): TEventStatusMessage {
-    return createMessage(EventStatusSchema, TYPES.EVENT_STATUS, payload)
+export function createEventStatusMessage(payload: TResponseStatusMessagePayload): TEventStatusMessage {
+    return Message.createEventMessage(NAME_STATUS, eventStatusMessageSchema, payload)
 }

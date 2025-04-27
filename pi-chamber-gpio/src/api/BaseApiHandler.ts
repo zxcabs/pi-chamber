@@ -1,14 +1,15 @@
-import type { TBaseMessage, TBaseMessageType } from '../../../msg-schema/BaseMessage.ts'
 import type PIChamberGPIO from '../PIChamberGPIO.ts'
+import type { TBusMessageType } from '../../../msg-bus/MessageBus.ts'
+import { Message } from '../../../msg-schema/BaseMessage.ts'
 
-export abstract class BaseApiHandler<TMessage extends TBaseMessage = TBaseMessage> {
+export abstract class BaseApiHandler<TMessage extends Message.TMessage = Message.TMessage> {
     protected readonly ctx: PIChamberGPIO
-    private readonly messageType: TBaseMessageType
-    private messageListener: (msg: TBaseMessage) => void
+    private readonly messageType: TBusMessageType
+    private messageListener: (msg: TMessage) => void
 
-    constructor(ctx: PIChamberGPIO, messageType: TBaseMessageType) {
+    constructor(ctx: PIChamberGPIO, name: Message.TName, type: Message.TType = Message.TYPE_REQUEST) {
         this.ctx = ctx
-        this.messageType = messageType
+        this.messageType = `${type}:${name}`
         this.messageListener = this.handleIncomingMessage.bind(this)
 
         this.registerMessageHandler()
@@ -22,21 +23,15 @@ export abstract class BaseApiHandler<TMessage extends TBaseMessage = TBaseMessag
         this.ctx.ebus.off(this.messageType, this.messageListener)
     }
 
-    private handleIncomingMessage(msg: TBaseMessage): void {
+    private handleIncomingMessage(msg: TMessage): void {
         try {
-            if (this.shouldHandleMessage(msg)) {
-                this.messageHandler(msg as TMessage)
-            }
+            this.messageHandler(msg as TMessage)
         } catch (error) {
             this.handleError(error, msg)
         }
     }
 
-    protected shouldHandleMessage(msg: TBaseMessage): boolean {
-        return msg.type === this.messageType
-    }
-
-    protected handleError(error: unknown, message: TBaseMessage): void {
+    protected handleError(error: unknown, message: TMessage): void {
         console.error(`Error processing message ${message.type}:`, error)
     }
 

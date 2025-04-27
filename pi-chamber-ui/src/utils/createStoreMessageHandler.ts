@@ -1,11 +1,11 @@
-import type { TBaseMessage, TBaseMessageType } from '../../../msg-schema/BaseMessage'
+import { Message } from '../../../msg-schema/BaseMessage'
 
-export default function createStoreMessageHandler<TMessage extends TBaseMessage>(
-    type: TBaseMessageType,
+export default function createStoreMessageHandler<TMessage extends Message.TMessage>(
+    type: Message.TTypedName,
     cb: (message: TMessage) => void,
-): (message: TBaseMessage) => void {
+): (message: Message.TMessage) => void {
     return function handleMessage(message) {
-        if (message.type !== type) return
+        if (`${message.type}:${message.name}` !== type) return
         cb(message as TMessage)
     }
 }

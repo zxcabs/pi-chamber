@@ -1,9 +1,9 @@
 import {
     createEventStatusMessage,
-    createRsStatusMessage,
-    TYPES,
-    type TRqStatusMessage,
-    type TRsStatusMessagePayload,
+    createResponseStatusMessage,
+    NAME_STATUS,
+    type TRequestStatusMessage,
+    type TResponseStatusMessagePayload,
 } from '../../../msg-schema/StatusMessage.ts'
 import type { IGPIODeviceResult } from '../devices/types/IGPIODevice.type.ts'
 import type { IPWMDeviceResult } from '../devices/types/IPWMDevice.type.ts'
@@ -11,11 +11,11 @@ import type { ITemperatureSensorReadResult } from '../devices/types/ITemperature
 import type PIChamberGPIO from '../PIChamberGPIO.ts'
 import { BaseApiHandler } from './BaseApiHandler.ts'
 
-export default class StatusHandler extends BaseApiHandler<TRqStatusMessage> {
+export default class StatusHandler extends BaseApiHandler<TRequestStatusMessage> {
     private timerId: ReturnType<typeof setTimeout>
 
     constructor(ctx: PIChamberGPIO) {
-        super(ctx, TYPES.RQ_STATUS)
+        super(ctx, NAME_STATUS)
         this.sendEventStatus()
     }
 
@@ -29,7 +29,7 @@ export default class StatusHandler extends BaseApiHandler<TRqStatusMessage> {
         ])
     }
 
-    private async getStatusPayload(): Promise<TRsStatusMessagePayload> {
+    private async getStatusPayload(): Promise<TResponseStatusMessagePayload> {
         const [temperature_sensors, gpio_devices, pwm_devices] = await this.getStatus()
 
         return {
@@ -46,9 +46,9 @@ export default class StatusHandler extends BaseApiHandler<TRqStatusMessage> {
         this.timerId = setTimeout(() => this.sendEventStatus(), this.ctx.config.general.status_timeinterval)
     }
 
-    async messageHandler(messsage: TRqStatusMessage): Promise<void> {
+    async messageHandler(messsage: TRequestStatusMessage): Promise<void> {
         const payload = await this.getStatusPayload()
-        const statusMsg = createRsStatusMessage(payload, messsage.uid)
+        const statusMsg = createResponseStatusMessage(messsage.uid, payload)
         this.ctx.ebus.emit(statusMsg)
     }
 

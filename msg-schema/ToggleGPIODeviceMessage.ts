@@ -1,45 +1,42 @@
 import { z } from 'zod'
-import { BaseMessageSchema, createMessage, createResponceMessage, type TBaseMessageUUID } from './BaseMessage.ts'
+import { Message } from './BaseMessage.ts'
 import { DeviceNameSchema, GPIODeviceSchema } from './DeviceStatus.ts'
 
-export const TYPES = {
-    RQ_TOGGLE_GPIO_DEVICE: 'RQ_TOGGLE_GPIO_DEVICE',
-    RS_TOGGLE_GPIO_DEVICE: 'RS_TOGGLE_GPIO_DEVICE',
-} as const
+export const NAME_TOGGLE_GPIO_DEVICE = 'TOGGLE_GPIO_DEVICE' as const
 
-export const RqToggleGPIODeviceMessagePayloadSchema = z.object({
+export const requestToggleGPIODevicePayloadSchema = Message.payoadSchema.extend({
     name: DeviceNameSchema,
 })
 
-export type TRqToggleGPIODevicePayloadMessage = z.infer<typeof RqToggleGPIODeviceMessagePayloadSchema>
+export type TRequestToggleGPIODevicePayload = z.infer<typeof requestToggleGPIODevicePayloadSchema>
 
-export const RqToggleGPIODeviceMessageSchema = BaseMessageSchema.extend({
-    type: z.literal(TYPES.RQ_TOGGLE_GPIO_DEVICE),
-    payload: RqToggleGPIODeviceMessagePayloadSchema,
+export const requestToggleGPIODeviceMessageSchema = Message.requestMessageSchema.extend({
+    payload: requestToggleGPIODevicePayloadSchema,
 })
 
-export type TRqToggleGPIODeviceMessage = z.infer<typeof RqToggleGPIODeviceMessageSchema>
+export type TRequestToggleGPIODeviceMessage = z.infer<typeof requestToggleGPIODeviceMessageSchema>
 
-export const RsToggleGPIODeviceMessagePayloadSchema = GPIODeviceSchema
-
-export type TRsToggleGPIODeviceMessagePayload = z.infer<typeof RsToggleGPIODeviceMessagePayloadSchema>
-
-export const RsToggleGPIODeviceMessageSchema = BaseMessageSchema.extend({
-    type: z.literal(TYPES.RS_TOGGLE_GPIO_DEVICE),
-    payload: RsToggleGPIODeviceMessagePayloadSchema,
+export const responseToggleGPIODevicePayloadSchema = Message.responseMessagePayloadSchema.extend({
+    device: GPIODeviceSchema,
 })
 
-export type TRsToggleGPIODeviceMessage = z.infer<typeof RsToggleGPIODeviceMessageSchema>
+export type TResponseToggleGPIODevicePayload = z.infer<typeof responseToggleGPIODevicePayloadSchema>
 
-export function createRqToggleGPIODeviceMessage(
-    payload: TRqToggleGPIODevicePayloadMessage,
-): TRqToggleGPIODeviceMessage {
-    return createMessage(RqToggleGPIODeviceMessageSchema, TYPES.RQ_TOGGLE_GPIO_DEVICE, payload)
+export const responseToggleGPIODeviceMessageSchema = Message.responseMessageSchema.extend({
+    payload: responseToggleGPIODevicePayloadSchema,
+})
+
+export type TResponseToggleGPIODeviceMessage = z.infer<typeof responseToggleGPIODeviceMessageSchema>
+
+export function createRequestToggleGPIOMessage(
+    payload: TRequestToggleGPIODevicePayload,
+): TRequestToggleGPIODeviceMessage {
+    return Message.createRequestMessage(NAME_TOGGLE_GPIO_DEVICE, requestToggleGPIODeviceMessageSchema, payload)
 }
 
-export function createRsToggleGPIODeviceMessage(
-    payload: TRsToggleGPIODeviceMessagePayload,
-    uid: TBaseMessageUUID,
-): TRsToggleGPIODeviceMessage {
-    return createResponceMessage(RsToggleGPIODeviceMessageSchema, TYPES.RS_TOGGLE_GPIO_DEVICE, uid, payload)
+export function createResponseToggleGPIOMessage(
+    uid: Message.TUid,
+    payload: TResponseToggleGPIODevicePayload,
+): TResponseToggleGPIODeviceMessage {
+    return Message.createResponseMessage(uid, NAME_TOGGLE_GPIO_DEVICE, responseToggleGPIODeviceMessageSchema, payload)
 }

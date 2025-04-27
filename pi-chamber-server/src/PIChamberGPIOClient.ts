@@ -2,9 +2,10 @@ import { Socket } from 'node:net'
 import type { TConfig } from '../../config-reader/readConfig.types.ts'
 import callbackAsyncWrapper from '../../utils/callbackAsyncWrapper.ts'
 import EventEmitter from 'node:events'
-import type { TBaseMessage } from '../../msg-schema/BaseMessage.ts'
-import parseMessage from '../../msg-schema/messageParser.ts'
-import { TYPES, createPingMessage, type TPingMessage } from '../../msg-schema/PingPongMessage.ts'
+import { Message, type TBaseMessage } from '../../msg-schema/BaseMessage.ts'
+import { createPingMessage, type TPingMessage } from '../../msg-schema/PingMessage.ts'
+import { NAME_PONG, type TPongMessage } from '../../msg-schema/PongMessage.ts'
+import safeJsonParse from '../../utils/safeJsonParse.ts'
 
 export default class PIChamberGPIOClient extends EventEmitter {
     private reconnectMS: number = 1000
@@ -106,13 +107,20 @@ export default class PIChamberGPIOClient extends EventEmitter {
         const trimmed = msgString.trim()
 
         if (trimmed) {
-            const msg = parseMessage(trimmed)
-            if (msg.type === TYPES.PONG) {
-                if (msg.uid !== this.currentPingMsg.uid) {
-                    this.emit('error', 'Wrong ping uid')
+            const parseResult = safeJsonParse<Message.TMessage>(trimmed)
+
+            if (parseResult.success) {
+                const msg = parseResult.data
+
+                if (msg.type === Message.TYPE_RESPONSE && msg.name === NAME_PONG) {
+                    const pongMsg = msg as TPongMessage
+
+                    if (pongMsg.ruid !== this.currentPingMsg.uid) {
+                        this.emit('error', 'Wrong ping uid')
+                    }
+                } else {
+                    this.emit('messsage', msg)
                 }
-            } else {
-                this.emit('messsage', msg)
             }
         }
     }

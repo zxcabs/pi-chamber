@@ -1,17 +1,13 @@
 import { z } from 'zod'
 import type { ReadonlyDeep } from 'type-fest'
-import { BaseMessageSchema, createMessage } from './BaseMessage.ts'
+import { Message } from './BaseMessage.ts'
 
-export const TYPES = {
-    RQ_SHUTDOWN: 'RQ_SHUTDOWN',
-} as const
+export const NAME_SHUTDOWN = 'SHUTDOWN' as const
 
-export const RqShutdownSchema = BaseMessageSchema.extend({
-    type: z.literal(TYPES.RQ_SHUTDOWN),
-})
+export const requestShutdownMessageSchema = Message.requestMessageSchema.extend({})
 
-export type TRqShutdownMessage = ReadonlyDeep<z.infer<typeof RqShutdownSchema>>
+export type TRequestShutdownMessage = ReadonlyDeep<z.infer<typeof requestShutdownMessageSchema>>
 
-export function createRqShutdownMessage(): TRqShutdownMessage {
-    return createMessage(RqShutdownSchema, TYPES.RQ_SHUTDOWN)
+export function createRequestShutdownMessage(): TRequestShutdownMessage {
+    return Message.createRequestMessage(NAME_SHUTDOWN, requestShutdownMessageSchema)
 }

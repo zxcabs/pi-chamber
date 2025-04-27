@@ -5,12 +5,12 @@ import GPIODevices from './GPIODevices.ts'
 import PWMDevices from './PWMDevices.ts'
 import HeatingChambers from './HeatingChamber/HeatingChambers.ts'
 import APIHandler from './APIHandler.ts'
-import EventBus from './EventBus/EventBus.ts'
-import { SocketServerEventBridge } from './SocketServer/SocketServerEventBridge.ts'
+import SocketServerMessageBusBridge from './SocketServer/SocketServerMessageBusBridge.ts'
+import MessageBus from '../../msg-bus/MessageBus.ts'
 
 class PIChamberGPIO {
     config: TConfig
-    ebus: EventBus
+    ebus: MessageBus
     server: PIChamberGPIOServer
     temperatureSensors: TemperatureSensors
     gpioDevices: GPIODevices
@@ -18,11 +18,11 @@ class PIChamberGPIO {
     heatingChambers: HeatingChambers
     apiHandler: APIHandler
 
-    private serverBridge: SocketServerEventBridge
+    private serverBridge: SocketServerMessageBusBridge
 
     constructor(config: TConfig) {
         this.config = config
-        this.ebus = new EventBus()
+        this.ebus = new MessageBus()
         this.server = new PIChamberGPIOServer(config.general)
         this.temperatureSensors = new TemperatureSensors(config.temperature_sensors)
         this.gpioDevices = new GPIODevices(config.gpio_devices)
@@ -30,7 +30,7 @@ class PIChamberGPIO {
         this.heatingChambers = new HeatingChambers(config.heating_chambers, this.ebus)
         this.apiHandler = new APIHandler(this)
 
-        this.serverBridge = new SocketServerEventBridge(this.server, this.ebus)
+        this.serverBridge = new SocketServerMessageBusBridge(this.server, this.ebus)
     }
 
     async start() {

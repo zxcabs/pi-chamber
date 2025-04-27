@@ -1,5 +1,5 @@
 import type { THeatingChambersConfig } from '../../../config-reader/readConfig.types.ts'
-import type EventBus from '../EventBus/EventBus.ts'
+import type MessageBus from '../../../msg-bus/MessageBus.ts'
 import HeatingChamber from './HeatingChamber.ts'
 import type { IHeatingChamberResult } from './HeatingChamber.type.ts'
 
@@ -8,7 +8,7 @@ export default class HeatingChambers {
 
     constructor(
         private config: THeatingChambersConfig,
-        ebus: EventBus,
+        ebus: MessageBus,
     ) {
         this.chambers = this.config.map(heatinChamberConfig => new HeatingChamber(heatinChamberConfig, ebus))
     }
