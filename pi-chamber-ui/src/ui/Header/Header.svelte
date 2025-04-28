@@ -1,33 +1,47 @@
 <script lang="ts">
-    import Icon from '@iconify/svelte'
+    import {
+        Header,
+        HeaderNav,
+        HeaderNavItem,
+        HeaderNavMenu,
+        HeaderUtilities,
+        HeaderAction,
+        HeaderGlobalAction,
+        HeaderPanelLinks,
+        HeaderPanelDivider,
+        HeaderPanelLink,
+        SkipToContent,
+    } from 'carbon-components-svelte'
+    import IconReload from '../Icons/IconReload.svelte'
+    import IconShutdown from '../Icons/IconShutdown.svelte'
 
-    export let className = ''
     export let onreload
     export let onshutdown
+
+    export let isSideNavOpen = false
+    let isOpen = false
 </script>
 
-<header class="header {className}">
-    <h1>PI Chamber</h1>
-    <div class="buttons">
-        <button class="button" onclick={onreload}><Icon icon="fluent:arrow-clockwise-16-regular" /></button>
-        <button class="button" onclick={onshutdown}><Icon icon="fluent:power-20-regular" /></button>
-    </div>
-</header>
+<Header company="PI" platformName="Chamber" bind:isSideNavOpen>
+    <svelte:fragment slot="skip-to-content">
+        <SkipToContent />
+    </svelte:fragment>
 
-<style>
-    .header {
-        position: fixed;
-        top: 0;
-        left: 0;
-        right: 0;
-        height: 60px;
-        background-color: #2c3e50;
-        color: white;
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        padding: 0 20px;
-        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-        z-index: 1000;
-    }
-</style>
+    <HeaderUtilities>
+        <HeaderAction bind:isOpen text="Menu">
+            <HeaderPanelLinks>
+                <HeaderPanelDivider>Switcher subject 1</HeaderPanelDivider>
+                <HeaderPanelLink>Switcher item 1</HeaderPanelLink>
+                <HeaderPanelDivider>Switcher subject 2</HeaderPanelDivider>
+                <HeaderPanelLink>Switcher item 1</HeaderPanelLink>
+                <HeaderPanelLink>Switcher item 2</HeaderPanelLink>
+                <HeaderPanelLink>Switcher item 3</HeaderPanelLink>
+                <HeaderPanelLink>Switcher item 4</HeaderPanelLink>
+                <HeaderPanelLink>Switcher item 5</HeaderPanelLink>
+            </HeaderPanelLinks>
+        </HeaderAction>
+
+        <HeaderGlobalAction iconDescription="Reload" tooltipAlignment="end" icon={IconReload} onclick={onreload} />
+        <HeaderGlobalAction iconDescription="Reload" tooltipAlignment="end" icon={IconShutdown} onclick={onshutdown} />
+    </HeaderUtilities>
+</Header>

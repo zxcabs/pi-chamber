@@ -1,6 +1,6 @@
 <script lang="ts">
     import Icon from '@iconify/svelte'
-    import type { TBaseDevice } from '../../../../msg-schema/DeviceStatus.ts'
+    import type { TBaseDevice } from '../../../../msg-schema/schemas/Device.ts'
     import { EDeviceTypes } from '../../../../pi-chamber-gpio/src/devices/types/IBaseDeviceResult.types.js'
 
     const ICONS: Record<string, string> = {

@@ -1,9 +1,21 @@
 import { defineConfig } from 'vite'
 import { svelte } from '@sveltejs/vite-plugin-svelte'
+import { optimizeImports, optimizeCss } from 'carbon-preprocess-svelte'
 
-// https://vite.dev/config/
+/** @type {import('vite').UserConfig} */
 export default defineConfig({
-    plugins: [svelte()],
+    // Optional: since we use the `optimizeImports` preprocessor, we can exclude
+    // `carbon-components-svelte` and `carbon-pictograms-svelte` from the
+    // `optimizeDeps` configuration for even faster cold starts.
+    optimizeDeps: {
+        exclude: ['carbon-components-svelte'],
+    },
+    plugins: [
+        svelte({
+            preprocess: [optimizeImports()],
+        }),
+        optimizeCss(),
+    ],
     server: {
         proxy: {
             '/ws': {

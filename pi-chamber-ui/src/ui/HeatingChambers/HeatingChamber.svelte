@@ -1,41 +1,52 @@
 <script lang="ts">
     import type { TChamber } from 'src/stores/chambers'
+    import { Toggle, Grid, Row, Column } from 'carbon-components-svelte'
 
     export let chamber: TChamber
+    export let onSetLightValue: ({ name, value }: { name: string; value: 0 | 1 }) => void
+    export let onSetFantValue: ({ name, value }: { name: string; value: 0 | 1 }) => void
 
     const name = chamber.config.name
 
-    function handleClick() {}
+    $: lightStatus = chamber.state.light_status === 'ON'
+    $: fanStatus = chamber.state.fan_status === 'ON'
 
-    function handleKeyup(e: KeyboardEvent) {}
+    function handleLightChange(e: Event) {
+        if (!onSetLightValue) return
+        onSetLightValue({ name: name, value: lightStatus ? 1 : 0 })
+    }
+
+    function handleFanChange(e: Event) {
+        if (!onSetFantValue) return
+        onSetFantValue({ name: name, value: fanStatus ? 1 : 0 })
+    }
 </script>
 
-<div
-    on:click={handleClick}
-    on:keyup={handleKeyup}
-    role="button"
-    tabindex="0"
-    class="chamber"
-    aria-label={`Chamber ${name || 'unknown'}`}
->
-    <div>{name}</div>
-    <div>{JSON.stringify(chamber.state, null, 2)}</div>
-</div>
-
-<style>
-    .chamber {
-        cursor: pointer;
-        padding: 0.5rem;
-        border: 1px solid #ccc;
-        border-radius: 4px;
-        margin: 0.5rem 0;
-        display: flex;
-        width: 300px;
-        height: 300px;
-        flex-direction: column;
-    }
-
-    .chamber:focus {
-        outline: 2px solid #3b82f6;
-    }
-</style>
+<Grid>
+    <Row>
+        <Column>
+            <div>
+                <div>
+                    <div>
+                        <Toggle
+                            bind:toggled={lightStatus}
+                            labelText="Light"
+                            labelA="OFF"
+                            labelB="ON"
+                            on:change={handleLightChange}
+                        />
+                    </div>
+                    <div>
+                        <Toggle
+                            bind:toggled={fanStatus}
+                            labelText="Fan"
+                            labelA="OFF"
+                            labelB="ON"
+                            on:change={handleFanChange}
+                        />
+                    </div>
+                </div>
+            </div>
+        </Column>
+    </Row>
+</Grid>

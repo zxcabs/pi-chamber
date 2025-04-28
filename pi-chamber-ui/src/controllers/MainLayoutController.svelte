@@ -3,7 +3,7 @@
     import { shutdown } from '../actions/shutdown'
     import MainLayout from '../ui/MainLayout/MainLayout.svelte'
 
-    const handleNavigate = ({ path }) => {
+    const handleNavigate = ({ path }: { path: string }) => {
         navigate(path)
     }
 </script>

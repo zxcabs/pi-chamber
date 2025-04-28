@@ -1,24 +1,46 @@
 <script lang="ts">
+    import { ContentSwitcher, Switch } from 'carbon-components-svelte'
     import type { TChamber } from 'src/stores/chambers'
     import Chamber from './HeatingChamber.svelte'
 
     export let chambers: TChamber[]
+    export let onSetDevicesValue: () => void
+
+    let selectedIndex = 0
+
+    $: currentChamber = chambers?.length && chambers[selectedIndex]
+
+    function handleSetLightValue(data) {
+        if (onSetDevicesValue) {
+            onSetDevicesValue([
+                {
+                    name: data.name,
+                    lightValue: data.value,
+                },
+            ])
+        }
+    }
+
+    function handleSetFanValue(data) {
+        if (onSetDevicesValue) {
+            onSetDevicesValue([
+                {
+                    name: data.name,
+                    fanValue: data.value,
+                },
+            ])
+        }
+    }
 </script>
 
 <div>
-    <h2>Heating chambers:</h2>
-
-    <div class="list">
+    <ContentSwitcher bind:selectedIndex>
         {#each chambers as chamber (`${chamber.config.name}`)}
-            <Chamber {chamber} />
+            <Switch text={chamber.config.name}></Switch>
         {/each}
-    </div>
-</div>
+    </ContentSwitcher>
 
-<style>
-    .list {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 20px;
-    }
-</style>
+    {#if currentChamber}
+        <Chamber chamber={currentChamber} onSetLightValue={handleSetLightValue} onSetFantValue={handleSetFanValue} />
+    {/if}
+</div>

@@ -1,6 +1,4 @@
 import { mount } from 'svelte'
-import 'modern-normalize/modern-normalize.css'
-import './app.css'
 import App from './App.svelte'
 import WS from './WS'
 import { handleMessage as appHandler } from './stores/app'

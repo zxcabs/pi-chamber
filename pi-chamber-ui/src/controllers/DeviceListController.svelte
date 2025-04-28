@@ -6,6 +6,7 @@
     import { EDeviceTypes } from '../../../pi-chamber-gpio/src/devices/types/IBaseDeviceResult.types'
     import { setPWM, toggleDevice, setGPOIdevives } from '../actions/devices'
     import type { TGPIOValue } from '../../../pi-chamber-gpio/src/devices/types/IGPIODevice.type'
+    import { Button } from 'carbon-components-svelte'
 
     const handleClickDevice = (device: TBaseDevice) => {
         if (device.type === EDeviceTypes.GPIO) {
@@ -34,5 +35,5 @@
 
 <div>
     <Devices devices={$devicesStore} onclick={handleClickDevice} />
-    <button on:click|preventDefault={handleClickToggleAllGPIO}>Toggle all GPIO</button>
+    <Button on:click={handleClickToggleAllGPIO}>Toggle all GPIO</Button>
 </div>
