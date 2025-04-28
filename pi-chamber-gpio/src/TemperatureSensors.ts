@@ -2,7 +2,11 @@ import type { TTemeperatureSensorsConfig, TTemeperatureSensorConfig } from '../.
 import type { ITemperatureSensor, ITemperatureSensorReadResult } from './devices/types/ITemperatureSensor.type.ts'
 import TemperatureSensorMAX31865 from './devices/TemperatureSensorMAX31865.ts'
 
-const SENSORS_TYPE_CONT_MAP = {
+type ConstructorMap = {
+    [key: string]: new (...args: any[]) => ITemperatureSensor
+}
+
+const SENSORS_TYPE_CONT_MAP: ConstructorMap = {
     MAX31865: TemperatureSensorMAX31865,
 }
 
@@ -17,11 +21,12 @@ class TemperatureSensors {
                 console.error(
                     `Unknown temperature sensor type ${sensorConfig.type} for sensor name ${sensorConfig.name}`,
                 )
+            } else {
+                accum.push(new SensorContructor(sensorConfig))
             }
 
-            accum.push(new SensorContructor(sensorConfig))
             return accum
-        }, [])
+        }, [] as ITemperatureSensor[])
     }
 
     async connect(): Promise<void> {

@@ -12,7 +12,8 @@
     "author": "Evgeny Reznichenko <kusakyky@gmail.com>",
     "license": "ISC",
     "devDependencies": {
-        "@types/node": "^22.14.0"
+        "@types/node": "^22.14.0",
+        "zod": "^3.24.3"
     },
     "dependencies": {
         "max31865": "^1.0.3",

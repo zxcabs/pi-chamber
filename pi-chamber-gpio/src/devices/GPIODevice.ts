@@ -1,12 +1,13 @@
-import { Gpio, type BinaryValue } from 'onoff'
+import { Gpio } from 'onoff'
 import type { TGPIODeviceConfig } from '../../../config-reader/readConfig.types.ts'
 import type { IGPIODevice, IGPIODeviceResult, TGPIOValue } from './types/IGPIODevice.type.ts'
 import { EDeviceTypes } from './types/IBaseDeviceResult.types.ts'
+import safeAsync from '../../../utils/safeAsync.ts'
 
 export class GPIODevice implements IGPIODevice {
     readonly name: string
     private pin: number
-    private gpio: Gpio
+    private gpio: Gpio | undefined
     private initialValue: TGPIOValue = 0
 
     constructor(config: TGPIODeviceConfig) {
@@ -25,10 +26,9 @@ export class GPIODevice implements IGPIODevice {
     }
 
     async read(): Promise<IGPIODeviceResult> {
-        let value: TGPIOValue
-        let error: Error
-
-        value = await this.gpio.read().catch(e => (error = e))
+        const readResult = await safeAsync(this.gpio?.read())
+        const value = readResult.success ? readResult.data : 0
+        const error = readResult.success ? null : readResult.error
 
         return {
             type: EDeviceTypes.GPIO,
@@ -39,10 +39,10 @@ export class GPIODevice implements IGPIODevice {
         }
     }
 
-    async write(value: TGPIOValue): Promise<IGPIODeviceResult> {
-        let error: Error
-
-        await this.gpio.write(value).catch(e => (error = e))
+    async write(writeValue: TGPIOValue): Promise<IGPIODeviceResult> {
+        const readResult = await safeAsync(this.gpio?.write(writeValue))
+        const value = readResult.success ? writeValue : 0
+        const error = readResult.success ? null : readResult.error
 
         return {
             type: EDeviceTypes.GPIO,
@@ -54,7 +54,7 @@ export class GPIODevice implements IGPIODevice {
     }
 
     async release(): Promise<void> {
-        await this.gpio.write(0)
-        this.gpio.unexport()
+        await this.gpio?.write(0)
+        this.gpio?.unexport()
     }
 }

@@ -2,7 +2,11 @@ import type PIChamberGPIO from '../PIChamberGPIO.ts'
 import type { TBusMessageType } from '../../../msg-bus/MessageBus.ts'
 import { Message } from '../../../msg-schema/BaseMessage.ts'
 
-export abstract class BaseApiHandler<TMessage extends Message.TMessage = Message.TMessage> {
+export interface IBaseApiHandler {
+    destroy: () => void
+}
+
+export abstract class BaseApiHandler<TMessage extends Message.TMessage = Message.TMessage> implements IBaseApiHandler {
     protected readonly ctx: PIChamberGPIO
     private readonly messageType: TBusMessageType
     private messageListener: (msg: TMessage) => void

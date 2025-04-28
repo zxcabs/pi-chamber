@@ -1,6 +1,6 @@
 import { z } from 'zod'
 import { Message } from './BaseMessage.ts'
-import { DeviceNameSchema, GPIODeviceSchema } from './DeviceStatus.ts'
+import { DeviceNameSchema, GPIODeviceSchema } from './schemas/Device.ts'
 
 export const NAME_TOGGLE_GPIO_DEVICE = 'TOGGLE_GPIO_DEVICE' as const
 

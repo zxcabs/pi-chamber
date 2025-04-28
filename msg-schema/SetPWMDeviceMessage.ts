@@ -1,6 +1,6 @@
 import { z } from 'zod'
 import { Message, type TBaseMessageUUID } from './BaseMessage.ts'
-import { DeviceNameSchema, DeviceValueSchema, PWMDeviceSchema } from './DeviceStatus.ts'
+import { DeviceNameSchema, DeviceValueSchema, PWMDeviceSchema } from './schemas/Device.ts'
 
 export const NAME_SET_PWM = 'SET_PWM' as const
 

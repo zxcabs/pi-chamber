@@ -34,8 +34,8 @@ export default class HeatingChamberState {
         const { error, value } = this.fanDevices.reduce(
             (acc, fan) => {
                 if (acc.error) return acc
+                if (fan.error) acc.error = fan.error
 
-                acc.error = fan.error
                 acc.value |= fan.value
 
                 return acc
@@ -50,11 +50,11 @@ export default class HeatingChamberState {
 
     get lightStatus(): THeatingChamberStateStatus {
         const { error, value } = this.lightDevices.reduce(
-            (acc, fan) => {
+            (acc, light) => {
                 if (acc.error) return acc
+                if (light.error) acc.error = light.error
 
-                acc.error = fan.error
-                acc.value |= fan.value
+                acc.value |= light.value
 
                 return acc
             },

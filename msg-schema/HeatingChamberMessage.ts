@@ -1,7 +1,11 @@
 import { z } from 'zod'
 import type { ReadonlyDeep } from 'type-fest'
 import { Message } from './BaseMessage.ts'
-import { heatingChamberSchema, nameSchema } from '../config-reader/schemas/heatingChambers.ts'
+import {
+    heatingChamberSchema as heatingChamberConfigSchema,
+    nameSchema,
+} from '../config-reader/schemas/heatingChambers.ts'
+import { heatingChamberStateSchema } from './schemas/HeatingChamberState.ts'
 
 export const NAME_HEATING_CHAMBERS = 'HEATING_CHAMBERS' as const
 
@@ -9,20 +13,8 @@ export const requestHeatingChambersSchema = Message.requestMessageSchema.extend(
 
 export type TRequestHeatingChambersMessage = z.infer<typeof requestHeatingChambersSchema>
 
-export const heatingChamberStateSchema = z
-    .object({
-        updateAt: z.number(),
-        status: z.enum(['ON', 'OFF', 'ERROR']),
-        heaterValue: z.number(),
-        fan_status: z.enum(['ON', 'OFF', 'ERROR']),
-        light_status: z.enum(['ON', 'OFF', 'ERROR']),
-        current_temperature: z.number(),
-        target_temperature: z.number(),
-    })
-    .describe('Heating chamber state')
-
 export const responseHeatingChamberSchema = z.object({
-    config: heatingChamberSchema,
+    config: heatingChamberConfigSchema,
     state: heatingChamberStateSchema,
 })
 
@@ -34,11 +26,11 @@ export const responseHeatingChambersPayloadSchema = Message.responseMessagePaylo
 
 export type TResponseHeatingChambersPayload = ReadonlyDeep<z.infer<typeof responseHeatingChambersPayloadSchema>>
 
-export const ResponseHeatingChambersSchema = Message.responseMessageSchema.extend({
+export const responseHeatingChambersSchema = Message.responseMessageSchema.extend({
     payload: responseHeatingChambersPayloadSchema,
 })
 
-export type TResponseHeatingChambersMessage = ReadonlyDeep<z.infer<typeof ResponseHeatingChambersSchema>>
+export type TResponseHeatingChambersMessage = ReadonlyDeep<z.infer<typeof responseHeatingChambersSchema>>
 
 export const eventHeatingChamberStatePayloadSchema = z.object({
     name: nameSchema,
@@ -61,7 +53,7 @@ export function createResponseHeatingChambersMessage(
     uid: Message.TUid,
     payload: TResponseHeatingChambersPayload,
 ): TResponseHeatingChambersMessage {
-    return Message.createResponseMessage(uid, NAME_HEATING_CHAMBERS, ResponseHeatingChambersSchema, payload)
+    return Message.createResponseMessage(uid, NAME_HEATING_CHAMBERS, responseHeatingChambersSchema, payload)
 }
 
 export function createEventHeatingChamberSateMessage(

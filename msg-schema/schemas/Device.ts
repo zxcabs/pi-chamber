@@ -20,7 +20,10 @@ export const BaseDeviceSchema = z
 export type TBaseDevice = z.infer<typeof BaseDeviceSchema>
 
 // GPIO device message fields
-export const GPIODeviceSchema = BaseDeviceSchema.extend({}).describe('GPIO device data')
+export const GPIODeviceValueSchema = z.union([z.literal(0), z.literal(1)])
+export const GPIODeviceSchema = BaseDeviceSchema.extend({
+    value: GPIODeviceValueSchema,
+}).describe('GPIO device data')
 
 export type TGPIODeviceData = z.infer<typeof GPIODeviceSchema>
 

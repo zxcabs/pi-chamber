@@ -6,16 +6,16 @@ import type { IPWMDevice, IPWMDeviceResult, TPWMValue } from './types/IPWMDevice
 export class PWMDevice implements IPWMDevice {
     readonly name: string
     private pin: number
-    private gpio: Gpio
+    private gpio: Gpio | undefined
     private pwmFrequency: number = 1
     private pwmResolution: number = 100
     private initialValue: TPWMValue = 0
     private currentValue: TPWMValue = 0
-    private latesError: Error
+    private latesError: Error | undefined
     private isRunning: boolean = false
 
-    private pwmTimerId: NodeJS.Timeout
-    private pwmImmediateId: NodeJS.Immediate
+    private pwmTimerId: NodeJS.Timeout | undefined
+    private pwmImmediateId: NodeJS.Immediate | undefined
 
     constructor(config: TPWMDeviceConfig) {
         this.name = config.name
@@ -105,15 +105,15 @@ export class PWMDevice implements IPWMDevice {
         this.isRunning = false
         clearImmediate(this.pwmImmediateId)
         clearTimeout(this.pwmTimerId)
-        await this.gpio.write(0)
+        await this.gpio?.write(0)
     }
 
     private async gpioWrite(value: BinaryValue): Promise<void> {
-        this.gpio.write(value).catch(e => (this.latesError = e))
+        this.gpio?.write(value).catch(e => (this.latesError = e))
     }
 
     async release(): Promise<void> {
         await this.stopExecute()
-        this.gpio.unexport()
+        this.gpio?.unexport()
     }
 }

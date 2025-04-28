@@ -6,7 +6,7 @@ export class BaseDevices<
     TDeviceValue,
     TDeviceResult,
 > {
-    protected devices: Array<TDevice>
+    protected devices: TDevice[] = []
 
     constructor(private config: TDevicesConfig) {}
 
@@ -14,7 +14,7 @@ export class BaseDevices<
         await Promise.all(this.devices?.map(device => device.connect()))
     }
 
-    find(name: string): TDevice {
+    find(name: string): TDevice | undefined {
         return this.devices.find(i => i.name === name)
     }
 
@@ -42,8 +42,12 @@ export class BaseDevices<
         return await Promise.all(this.devices.map(i => i.read()))
     }
 
-    async writeAll(value: TDeviceValue): Promise<Array<TDeviceResult>> {
+    async writeAll(value: TDeviceValue): Promise<TDeviceResult[]> {
         return await Promise.all(this.devices.map(i => i.write(value)))
+    }
+
+    async writeByNames(devices: { name: string; value: TDeviceValue }[] = []): Promise<TDeviceResult[]> {
+        return await Promise.all(devices.map(device => this.write(device.name, device.value)))
     }
 
     async release(): Promise<void> {

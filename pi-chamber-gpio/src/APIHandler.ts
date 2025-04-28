@@ -1,20 +1,22 @@
 import type PIChamberGPIO from './PIChamberGPIO.ts'
-import type { BaseApiHandler } from './api/BaseApiHandler.ts'
+import type { IBaseApiHandler } from './api/BaseApiHandler.ts'
 import PingHandler from './api/PingHandler.ts'
 import StatusHandler from './api/StatusHandler.ts'
 import ToggleGPIODeviceHandler from './api/ToggleGPIODeviceHandler.ts'
 import ShutdownHandler from './api/ShutdownHandler.ts'
 import SetPWMHandler from './api/SetPWMHandler.ts'
 import HeatingChambersHandler from './api/HeatingChambersHandler.ts'
+import SetGPIODevicesValueHandler from './api/SetGPIODevicesValueHandler.ts'
 
 export default class APIHandler {
-    private apiHandlers: BaseApiHandler[]
+    private apiHandlers: IBaseApiHandler[] = []
     constructor(private ctx: PIChamberGPIO) {}
 
     async connect() {
         this.apiHandlers = [
             new PingHandler(this.ctx),
             new StatusHandler(this.ctx),
+            new SetGPIODevicesValueHandler(this.ctx),
             new ToggleGPIODeviceHandler(this.ctx),
             new ShutdownHandler(this.ctx),
             new SetPWMHandler(this.ctx),

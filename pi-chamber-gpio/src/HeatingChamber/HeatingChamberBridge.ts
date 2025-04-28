@@ -9,6 +9,10 @@ import {
     NAME_TOGGLE_GPIO_DEVICE,
     type TResponseToggleGPIODeviceMessage,
 } from '../../../msg-schema/ToggleGPIODeviceMessage.ts'
+import {
+    NAME as NAME_SET_GPIO_DEVICES,
+    type TResponseMessage as TResponseSetGPIODevicesMessage,
+} from '../../../msg-schema/SetGPIODevicesValueMessage.ts'
 import type { IGPIODeviceResult } from '../devices/types/IGPIODevice.type.ts'
 import type { IPWMDeviceResult } from '../devices/types/IPWMDevice.type.ts'
 import type { ITemperatureSensorReadResult } from '../devices/types/ITemperatureSensor.type.ts'
@@ -28,9 +32,10 @@ export default class HeatingChamberBridge extends MessageBusBridge {
         this.setupBusNamedEventListener(NAME_STATUS, this.handleStatusMessage)
         this.setupBusNamedResponseListener(NAME_SET_PWM, this.handleSetPWMMessage)
         this.setupBusNamedResponseListener(NAME_TOGGLE_GPIO_DEVICE, this.handleToggleGPIODeviceMessage)
+        this.setupBusNamedResponseListener(NAME_SET_GPIO_DEVICES, this.handleSetGPIODevicesValueMessage)
     }
 
-    private handleStatusMessage(message: TResponseStatusMessage & TEventStatusMessage) {
+    private handleStatusMessage(message: TResponseStatusMessage | TEventStatusMessage) {
         const temperatureSensorNames = this.ctx.config.temperature_sensors
         const temperatureSensorsData = message.payload.temperature_sensors
 
@@ -91,19 +96,42 @@ export default class HeatingChamberBridge extends MessageBusBridge {
 
     private handleToggleGPIODeviceMessage(message: TResponseToggleGPIODeviceMessage) {
         const lightDeviceNames = this.ctx.config.lights
-        const gpioDevicesData = message.payload.device
+        const gpioDeviceData = message.payload.device
 
         lightDeviceNames?.forEach(name => {
-            if (gpioDevicesData.name === name) {
-                this.ctx.state.updateLightDeviceStatus(gpioDevicesData as IGPIODeviceResult)
+            if (gpioDeviceData.name === name) {
+                this.ctx.state.updateLightDeviceStatus(gpioDeviceData as IGPIODeviceResult)
             }
         })
 
         const fanDeviceNames = this.ctx.config.fans
         fanDeviceNames?.forEach(name => {
-            if (gpioDevicesData.name === name) {
-                this.ctx.state.updataFanDeviceStatus(gpioDevicesData as IGPIODeviceResult)
+            if (gpioDeviceData.name === name) {
+                this.ctx.state.updataFanDeviceStatus(gpioDeviceData as IGPIODeviceResult)
             }
+        })
+
+        this.emitState()
+    }
+
+    private handleSetGPIODevicesValueMessage(message: TResponseSetGPIODevicesMessage) {
+        const lightDeviceNames = this.ctx.config.lights
+
+        const fanDeviceNames = this.ctx.config.fans
+        const gpioDevicesData = message.payload.devices
+
+        gpioDevicesData.forEach(gpioDeviceData => {
+            lightDeviceNames?.forEach(name => {
+                if (gpioDeviceData.name === name) {
+                    this.ctx.state.updateLightDeviceStatus(gpioDeviceData as IGPIODeviceResult)
+                }
+            })
+
+            fanDeviceNames?.forEach(name => {
+                if (gpioDeviceData.name === name) {
+                    this.ctx.state.updataFanDeviceStatus(gpioDeviceData as IGPIODeviceResult)
+                }
+            })
         })
 
         this.emitState()

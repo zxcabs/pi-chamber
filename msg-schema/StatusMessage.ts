@@ -1,6 +1,6 @@
 import { z } from 'zod'
 import { Message } from './BaseMessage.ts'
-import { GPIODeviceSchema, PWMDeviceSchema, TemperatureSensorSchema } from './DeviceStatus.ts'
+import { GPIODeviceSchema, PWMDeviceSchema, TemperatureSensorSchema } from './schemas/Device.ts'
 
 export const NAME_STATUS = 'NAME_STATUS' as const
 

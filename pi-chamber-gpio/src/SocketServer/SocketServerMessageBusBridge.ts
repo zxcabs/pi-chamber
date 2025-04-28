@@ -12,6 +12,10 @@ import {
 } from '../../../msg-schema/ToggleGPIODeviceMessage.ts'
 import { NAME_SET_PWM, requestSetPWMMessageSchema } from '../../../msg-schema/SetPWMDeviceMessage.ts'
 import { NAME_HEATING_CHAMBERS, requestHeatingChambersSchema } from '../../../msg-schema/HeatingChamberMessage.ts'
+import {
+    NAME as NAME_SET_GPIO_DEVICES_VALUE,
+    requestMessageSchema as requestSetGPIODevisesSchema,
+} from '../../../msg-schema/SetGPIODevicesValueMessage.ts'
 
 export default class SocketServerEventBridge extends MessageBusBridge {
     private readonly socketMessageTypes: TBusMessageType[] = [Message.TYPE_RESPONSE, Message.TYPE_EVENT]
@@ -21,6 +25,7 @@ export default class SocketServerEventBridge extends MessageBusBridge {
         [NAME_TOGGLE_GPIO_DEVICE]: requestToggleGPIODeviceMessageSchema,
         [NAME_SET_PWM]: requestSetPWMMessageSchema,
         [NAME_HEATING_CHAMBERS]: requestHeatingChambersSchema,
+        [NAME_SET_GPIO_DEVICES_VALUE]: requestSetGPIODevisesSchema,
     }
 
     constructor(

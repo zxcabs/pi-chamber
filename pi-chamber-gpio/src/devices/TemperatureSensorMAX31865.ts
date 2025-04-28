@@ -1,5 +1,6 @@
 import type { ITemperatureSensor, ITemperatureSensorReadResult } from './types/ITemperatureSensor.type.ts'
 import type { TTemeperatureSensorConfig } from '../../../config-reader/readConfig.types.ts'
+// @ts-ignore
 import MAX31865 from 'max31865'
 import { EDeviceTypes } from './types/IBaseDeviceResult.types.ts'
 
@@ -51,9 +52,10 @@ class TemperatureSensorMAX31865 implements ITemperatureSensor {
     }
 
     async readErrorString(): Promise<string | null> {
-        const faults = await this.sensor.getFaults()
+        const faults: Record<string, boolean> = await this.sensor.getFaults()
+
         return (
-            Object.entries(faults).reduce((result: string, [key, value]: [string, boolean]) => {
+            Object.entries(faults).reduce((result, [key, value]) => {
                 return value ? (result += `${result ? ', ' : ''}${key}`) : result
             }, '') || null
         )
