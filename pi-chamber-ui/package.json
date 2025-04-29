@@ -12,6 +12,7 @@
         "build-storybook": "storybook build"
     },
     "devDependencies": {
+        "@carbon/charts": "^1.23.6",
         "@chromatic-com/storybook": "^3.2.6",
         "@iconify/svelte": "^4.2.0",
         "@storybook/addon-essentials": "^8.6.12",

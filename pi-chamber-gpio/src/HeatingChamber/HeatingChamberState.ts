@@ -27,7 +27,7 @@ export default class HeatingChamberState {
     readonly heaterDevices: IPWMDeviceResult[] = []
 
     get heaterValue(): TPWMValue {
-        return this.heaterDevices.reduce((pwmAcc, pwmDevice) => pwmAcc + pwmDevice.value, 0)
+        return this.heaterDevices.reduce((pwmAcc, pwmDevice) => pwmAcc + pwmDevice.value, 0) / this.heaterDevices.length
     }
 
     get fanStatus(): THeatingChamberStateStatus {

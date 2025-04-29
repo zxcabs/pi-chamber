@@ -1,64 +1,30 @@
 <script lang="ts">
     import type { TChamber } from 'src/stores/chambers'
-    import { Toggle, Grid, Row, Column, Tile, Button, ButtonSet } from 'carbon-components-svelte'
+    import { Grid, Row, Column, Tile } from 'carbon-components-svelte'
     import type { TRequestDevice } from '../../../../msg-schema/SetHeatingChamberDevicesValue'
-    import {
-        HEATING_CHAMBER_DEVICE_FAN,
-        HEATING_CHAMBER_DEVICE_LIGHT,
-    } from '../../../../msg-schema/schemas/HeatingChamberState'
-    import IconTemperature from '../Icons/IconTemperature.svelte'
+    import Chart from '../Chart/Chart.svelte'
+    import HeatingChamerParams from './HeatingChamerParams.svelte'
 
     export let chamber: TChamber
     export let onSetDevicesValue: (deviceValue: TRequestDevice[]) => void
 
-    const chamberName = chamber.config.name
+    const now = Date.now()
 
-    $: lightStatus = chamber.state.light_status === 'ON'
-    $: fanStatus = chamber.state.fan_status === 'ON'
-
-    function handleLightChange(e: Event) {
-        if (!onSetDevicesValue) return
-        onSetDevicesValue([{ chamber: chamberName, name: HEATING_CHAMBER_DEVICE_LIGHT, value: lightStatus ? 1 : 0 }])
-    }
-
-    function handleFanChange(e: Event) {
-        if (!onSetDevicesValue) return
-        onSetDevicesValue([{ chamber: chamberName, name: HEATING_CHAMBER_DEVICE_FAN, value: fanStatus ? 1 : 0 }])
-    }
+    const charData = new Array(26).fill(0).map((val, i, arr) => ({
+        group: i >= 13 ? 'Current temp' : 'Target temp',
+        date: i >= 13 ? now + (i - 13) * 5000 : now + i * 5000,
+        value: Math.random() * 200,
+    }))
 </script>
 
 <Tile>
     <Grid>
-        <Row padding>
-            <Column>
-                Current <IconTemperature />: {chamber.state.current_temperature}
-            </Column>
-            <Column>
-                Target <IconTemperature />: {chamber.state.target_temperature}
-            </Column>
-            <Column>
-                Current heating power: {chamber.state.heaterValue}%
-            </Column>
-        </Row>
-        <Row padding>
-            <Column>
-                <Toggle
-                    bind:toggled={lightStatus}
-                    labelText="Light"
-                    labelA="OFF"
-                    labelB="ON"
-                    on:change={handleLightChange}
-                />
-            </Column>
-            <Column>
-                <Toggle bind:toggled={fanStatus} labelText="Fan" labelA="OFF" labelB="ON" on:change={handleFanChange} />
-            </Column>
-        </Row>
         <Row>
-            <Column>
-                <ButtonSet>
-                    <Button>Start</Button>
-                </ButtonSet>
+            <Column aspectRatio="2x1">
+                <Chart data={charData} />
+            </Column>
+            <Column aspectRatio="2x1">
+                <HeatingChamerParams {chamber} {onSetDevicesValue} />
             </Column>
         </Row>
     </Grid>

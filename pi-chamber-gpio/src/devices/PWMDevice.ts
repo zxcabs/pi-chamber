@@ -69,8 +69,8 @@ export class PWMDevice implements IPWMDevice {
     private async execute(): Promise<void> {
         const executeTime = 1000 / this.pwmFrequency
         const dutyCycle = this.currentValue / this.pwmResolution
-        const onTime = dutyCycle * executeTime
-        const offTime = executeTime - onTime
+        const onTime = Math.floor(dutyCycle * executeTime)
+        const offTime = Math.max(0, executeTime - onTime)
 
         this.isRunning = true
 
