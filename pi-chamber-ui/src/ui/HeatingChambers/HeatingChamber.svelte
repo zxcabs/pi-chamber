@@ -1,52 +1,65 @@
 <script lang="ts">
     import type { TChamber } from 'src/stores/chambers'
-    import { Toggle, Grid, Row, Column } from 'carbon-components-svelte'
+    import { Toggle, Grid, Row, Column, Tile, Button, ButtonSet } from 'carbon-components-svelte'
+    import type { TRequestDevice } from '../../../../msg-schema/SetHeatingChamberDevicesValue'
+    import {
+        HEATING_CHAMBER_DEVICE_FAN,
+        HEATING_CHAMBER_DEVICE_LIGHT,
+    } from '../../../../msg-schema/schemas/HeatingChamberState'
+    import IconTemperature from '../Icons/IconTemperature.svelte'
 
     export let chamber: TChamber
-    export let onSetLightValue: ({ name, value }: { name: string; value: 0 | 1 }) => void
-    export let onSetFantValue: ({ name, value }: { name: string; value: 0 | 1 }) => void
+    export let onSetDevicesValue: (deviceValue: TRequestDevice[]) => void
 
-    const name = chamber.config.name
+    const chamberName = chamber.config.name
 
     $: lightStatus = chamber.state.light_status === 'ON'
     $: fanStatus = chamber.state.fan_status === 'ON'
 
     function handleLightChange(e: Event) {
-        if (!onSetLightValue) return
-        onSetLightValue({ name: name, value: lightStatus ? 1 : 0 })
+        if (!onSetDevicesValue) return
+        onSetDevicesValue([{ chamber: chamberName, name: HEATING_CHAMBER_DEVICE_LIGHT, value: lightStatus ? 1 : 0 }])
     }
 
     function handleFanChange(e: Event) {
-        if (!onSetFantValue) return
-        onSetFantValue({ name: name, value: fanStatus ? 1 : 0 })
+        if (!onSetDevicesValue) return
+        onSetDevicesValue([{ chamber: chamberName, name: HEATING_CHAMBER_DEVICE_FAN, value: fanStatus ? 1 : 0 }])
     }
 </script>
 
-<Grid>
-    <Row>
-        <Column>
-            <div>
-                <div>
-                    <div>
-                        <Toggle
-                            bind:toggled={lightStatus}
-                            labelText="Light"
-                            labelA="OFF"
-                            labelB="ON"
-                            on:change={handleLightChange}
-                        />
-                    </div>
-                    <div>
-                        <Toggle
-                            bind:toggled={fanStatus}
-                            labelText="Fan"
-                            labelA="OFF"
-                            labelB="ON"
-                            on:change={handleFanChange}
-                        />
-                    </div>
-                </div>
-            </div>
-        </Column>
-    </Row>
-</Grid>
+<Tile>
+    <Grid>
+        <Row padding>
+            <Column>
+                Current <IconTemperature />: {chamber.state.current_temperature}
+            </Column>
+            <Column>
+                Target <IconTemperature />: {chamber.state.target_temperature}
+            </Column>
+            <Column>
+                Current heating power: {chamber.state.heaterValue}%
+            </Column>
+        </Row>
+        <Row padding>
+            <Column>
+                <Toggle
+                    bind:toggled={lightStatus}
+                    labelText="Light"
+                    labelA="OFF"
+                    labelB="ON"
+                    on:change={handleLightChange}
+                />
+            </Column>
+            <Column>
+                <Toggle bind:toggled={fanStatus} labelText="Fan" labelA="OFF" labelB="ON" on:change={handleFanChange} />
+            </Column>
+        </Row>
+        <Row>
+            <Column>
+                <ButtonSet>
+                    <Button>Start</Button>
+                </ButtonSet>
+            </Column>
+        </Row>
+    </Grid>
+</Tile>

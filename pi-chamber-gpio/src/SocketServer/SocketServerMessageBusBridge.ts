@@ -16,6 +16,10 @@ import {
     NAME as NAME_SET_GPIO_DEVICES_VALUE,
     requestMessageSchema as requestSetGPIODevisesSchema,
 } from '../../../msg-schema/SetGPIODevicesValueMessage.ts'
+import {
+    NAME as NAME_SET_HEATING_CHAMBER_DEVICES_VALUE,
+    requestMessageSchema as requestSetHeatingChamberDevicesValue,
+} from '../../../msg-schema/SetHeatingChamberDevicesValue.ts'
 
 export default class SocketServerEventBridge extends MessageBusBridge {
     private readonly socketMessageTypes: TBusMessageType[] = [Message.TYPE_RESPONSE, Message.TYPE_EVENT]
@@ -26,6 +30,7 @@ export default class SocketServerEventBridge extends MessageBusBridge {
         [NAME_SET_PWM]: requestSetPWMMessageSchema,
         [NAME_HEATING_CHAMBERS]: requestHeatingChambersSchema,
         [NAME_SET_GPIO_DEVICES_VALUE]: requestSetGPIODevisesSchema,
+        [NAME_SET_HEATING_CHAMBER_DEVICES_VALUE]: requestSetHeatingChamberDevicesValue,
     }
 
     constructor(

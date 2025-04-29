@@ -1,9 +1,6 @@
 <script lang="ts">
     import {
         Header,
-        HeaderNav,
-        HeaderNavItem,
-        HeaderNavMenu,
         HeaderUtilities,
         HeaderAction,
         HeaderGlobalAction,

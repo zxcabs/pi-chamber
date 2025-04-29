@@ -1,9 +1,11 @@
 <script lang="ts">
     import HeatingChambers from '../ui/HeatingChambers/HeatingChambers.svelte'
     import { chambers } from '../stores/chambers'
+    import type { TRequestDevice } from '../../../msg-schema/SetHeatingChamberDevicesValue'
+    import { setDevicesValue } from '../actions/chambers'
 
-    function handleSetDevicesValue(value) {
-        console.log(value)
+    function handleSetDevicesValue(devicesValue: TRequestDevice[]) {
+        setDevicesValue(devicesValue)
     }
 </script>
 

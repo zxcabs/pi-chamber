@@ -4,6 +4,6 @@
     import Theme from 'carbon-components-svelte/src/Theme/Theme.svelte'
 </script>
 
-<Theme theme="white">
+<Theme>
     <AppRoute />
 </Theme>

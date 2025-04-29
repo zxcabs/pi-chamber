@@ -1,46 +1,35 @@
 <script lang="ts">
-    import { ContentSwitcher, Switch } from 'carbon-components-svelte'
+    import { Column, ContentSwitcher, Grid, Row, Switch } from 'carbon-components-svelte'
     import type { TChamber } from 'src/stores/chambers'
     import Chamber from './HeatingChamber.svelte'
+    import type { TRequestDevice } from '../../../../msg-schema/SetHeatingChamberDevicesValue'
 
     export let chambers: TChamber[]
-    export let onSetDevicesValue: () => void
+    export let onSetDevicesValue: (devicesValue: TRequestDevice[]) => void
 
     let selectedIndex = 0
 
     $: currentChamber = chambers?.length && chambers[selectedIndex]
-
-    function handleSetLightValue(data) {
-        if (onSetDevicesValue) {
-            onSetDevicesValue([
-                {
-                    name: data.name,
-                    lightValue: data.value,
-                },
-            ])
-        }
-    }
-
-    function handleSetFanValue(data) {
-        if (onSetDevicesValue) {
-            onSetDevicesValue([
-                {
-                    name: data.name,
-                    fanValue: data.value,
-                },
-            ])
-        }
-    }
+    $: isShowSwitcher = chambers?.length > 1
 </script>
 
-<div>
-    <ContentSwitcher bind:selectedIndex>
-        {#each chambers as chamber (`${chamber.config.name}`)}
-            <Switch text={chamber.config.name}></Switch>
-        {/each}
-    </ContentSwitcher>
-
-    {#if currentChamber}
-        <Chamber chamber={currentChamber} onSetLightValue={handleSetLightValue} onSetFantValue={handleSetFanValue} />
+<Grid noGutter>
+    {#if isShowSwitcher}
+        <Row>
+            <Column>
+                <ContentSwitcher bind:selectedIndex>
+                    {#each chambers as chamber (`${chamber.config.name}`)}
+                        <Switch text={chamber.config.name}></Switch>
+                    {/each}
+                </ContentSwitcher>
+            </Column>
+        </Row>
     {/if}
-</div>
+    <Row>
+        <Column>
+            {#if currentChamber}
+                <Chamber chamber={currentChamber} {onSetDevicesValue} />
+            {/if}
+        </Column>
+    </Row>
+</Grid>

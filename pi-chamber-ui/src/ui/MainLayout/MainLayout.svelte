@@ -11,12 +11,22 @@
 
 <Header {onreload} {onshutdown} bind:isSideNavOpen />
 
-<Content>
-    <Grid>
-        <Row>
+<Content id="main-content">
+    <Grid fullWidth noGutter>
+        <Row condensed>
             <Column>
                 <slot />
             </Column>
         </Row>
     </Grid>
 </Content>
+
+<style>
+    :global(html::-webkit-scrollbar) {
+        display: none;
+    }
+
+    :global(#main-content) {
+        padding-top: 0;
+    }
+</style>

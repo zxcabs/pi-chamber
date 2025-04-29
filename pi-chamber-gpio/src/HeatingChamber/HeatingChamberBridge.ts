@@ -13,6 +13,14 @@ import {
     NAME as NAME_SET_GPIO_DEVICES,
     type TResponseMessage as TResponseSetGPIODevicesMessage,
 } from '../../../msg-schema/SetGPIODevicesValueMessage.ts'
+import {
+    NAME as NAME_SET_HEATING_CHAMBER_DEVICES_VALUE,
+    type TRequestMessage as TRequestSetHeatingChamberDevicesValueMessage,
+} from '../../../msg-schema/SetHeatingChamberDevicesValue.ts'
+import {
+    HEATING_CHAMBER_DEVICE_FAN,
+    HEATING_CHAMBER_DEVICE_LIGHT,
+} from '../../../msg-schema/schemas/HeatingChamberState.ts'
 import type { IGPIODeviceResult } from '../devices/types/IGPIODevice.type.ts'
 import type { IPWMDeviceResult } from '../devices/types/IPWMDevice.type.ts'
 import type { ITemperatureSensorReadResult } from '../devices/types/ITemperatureSensor.type.ts'
@@ -23,57 +31,60 @@ import type MessageBus from '../../../msg-bus/MessageBus.ts'
 
 export default class HeatingChamberBridge extends MessageBusBridge {
     constructor(
-        private ctx: HeatingChamber,
+        private chamber: HeatingChamber,
         ebus: MessageBus,
     ) {
         super(ebus)
 
-        this.setupBusNamedResponseListener(NAME_STATUS, this.handleStatusMessage)
         this.setupBusNamedEventListener(NAME_STATUS, this.handleStatusMessage)
+
+        this.setupBusNamedResponseListener(NAME_STATUS, this.handleStatusMessage)
         this.setupBusNamedResponseListener(NAME_SET_PWM, this.handleSetPWMMessage)
         this.setupBusNamedResponseListener(NAME_TOGGLE_GPIO_DEVICE, this.handleToggleGPIODeviceMessage)
         this.setupBusNamedResponseListener(NAME_SET_GPIO_DEVICES, this.handleSetGPIODevicesValueMessage)
+
+        this.setupBusNamedRequestListener(NAME_SET_HEATING_CHAMBER_DEVICES_VALUE, this.handleSetDevicesValue)
     }
 
     private handleStatusMessage(message: TResponseStatusMessage | TEventStatusMessage) {
-        const temperatureSensorNames = this.ctx.config.temperature_sensors
+        const temperatureSensorNames = this.chamber.config.temperature_sensors
         const temperatureSensorsData = message.payload.temperature_sensors
 
         temperatureSensorNames?.forEach(name => {
             temperatureSensorsData?.forEach(data => {
                 if (data.name === name) {
-                    this.ctx.state.updateTemperatureSensorStatus(data as ITemperatureSensorReadResult)
+                    this.chamber.state.updateTemperatureSensorStatus(data as ITemperatureSensorReadResult)
                 }
             })
         })
 
-        const lightDeviceNames = this.ctx.config.lights
+        const lightDeviceNames = this.chamber.config.lights
         const gpioDevicesData = message.payload.gpio_devices
 
         lightDeviceNames?.forEach(name => {
             gpioDevicesData?.forEach(data => {
                 if (data.name === name) {
-                    this.ctx.state.updateLightDeviceStatus(data as IGPIODeviceResult)
+                    this.chamber.state.updateLightDeviceStatus(data as IGPIODeviceResult)
                 }
             })
         })
 
-        const fanDeviceNames = this.ctx.config.fans
+        const fanDeviceNames = this.chamber.config.fans
         fanDeviceNames?.forEach(name => {
             gpioDevicesData?.forEach(data => {
                 if (data.name === name) {
-                    this.ctx.state.updataFanDeviceStatus(data as IGPIODeviceResult)
+                    this.chamber.state.updataFanDeviceStatus(data as IGPIODeviceResult)
                 }
             })
         })
 
-        const heaterDeviceNames = this.ctx.config.heaters
+        const heaterDeviceNames = this.chamber.config.heaters
         const pwmDevicesData = message.payload.pwm_devices
 
         heaterDeviceNames?.forEach(name => {
             pwmDevicesData?.forEach(data => {
                 if (data.name === name) {
-                    this.ctx.state.updataHeaterDeviceStatus(data as IPWMDeviceResult)
+                    this.chamber.state.updataHeaterDeviceStatus(data as IPWMDeviceResult)
                 }
             })
         })
@@ -82,12 +93,12 @@ export default class HeatingChamberBridge extends MessageBusBridge {
     }
 
     private handleSetPWMMessage(message: TResponseSetPWMMessage) {
-        const heaterDeviceNames = this.ctx.config.heaters
+        const heaterDeviceNames = this.chamber.config.heaters
         const pwmDevicesData = message.payload.device
 
         heaterDeviceNames?.forEach(name => {
             if (pwmDevicesData.name === name) {
-                this.ctx.state.updataHeaterDeviceStatus(pwmDevicesData as IPWMDeviceResult)
+                this.chamber.state.updataHeaterDeviceStatus(pwmDevicesData as IPWMDeviceResult)
             }
         })
 
@@ -95,19 +106,19 @@ export default class HeatingChamberBridge extends MessageBusBridge {
     }
 
     private handleToggleGPIODeviceMessage(message: TResponseToggleGPIODeviceMessage) {
-        const lightDeviceNames = this.ctx.config.lights
+        const lightDeviceNames = this.chamber.config.lights
         const gpioDeviceData = message.payload.device
 
         lightDeviceNames?.forEach(name => {
             if (gpioDeviceData.name === name) {
-                this.ctx.state.updateLightDeviceStatus(gpioDeviceData as IGPIODeviceResult)
+                this.chamber.state.updateLightDeviceStatus(gpioDeviceData as IGPIODeviceResult)
             }
         })
 
-        const fanDeviceNames = this.ctx.config.fans
+        const fanDeviceNames = this.chamber.config.fans
         fanDeviceNames?.forEach(name => {
             if (gpioDeviceData.name === name) {
-                this.ctx.state.updataFanDeviceStatus(gpioDeviceData as IGPIODeviceResult)
+                this.chamber.state.updataFanDeviceStatus(gpioDeviceData as IGPIODeviceResult)
             }
         })
 
@@ -115,21 +126,21 @@ export default class HeatingChamberBridge extends MessageBusBridge {
     }
 
     private handleSetGPIODevicesValueMessage(message: TResponseSetGPIODevicesMessage) {
-        const lightDeviceNames = this.ctx.config.lights
+        const lightDeviceNames = this.chamber.config.lights
 
-        const fanDeviceNames = this.ctx.config.fans
+        const fanDeviceNames = this.chamber.config.fans
         const gpioDevicesData = message.payload.devices
 
         gpioDevicesData.forEach(gpioDeviceData => {
             lightDeviceNames?.forEach(name => {
                 if (gpioDeviceData.name === name) {
-                    this.ctx.state.updateLightDeviceStatus(gpioDeviceData as IGPIODeviceResult)
+                    this.chamber.state.updateLightDeviceStatus(gpioDeviceData as IGPIODeviceResult)
                 }
             })
 
             fanDeviceNames?.forEach(name => {
                 if (gpioDeviceData.name === name) {
-                    this.ctx.state.updataFanDeviceStatus(gpioDeviceData as IGPIODeviceResult)
+                    this.chamber.state.updataFanDeviceStatus(gpioDeviceData as IGPIODeviceResult)
                 }
             })
         })
@@ -137,13 +148,29 @@ export default class HeatingChamberBridge extends MessageBusBridge {
         this.emitState()
     }
 
+    private handleSetDevicesValue(message: TRequestSetHeatingChamberDevicesValueMessage) {
+        const chamberName = this.chamber.name
+        const messageDevicesValue = message.payload.devices.filter(device => device.chamber === chamberName)
+
+        messageDevicesValue.forEach(device => {
+            const deviceName = device.name
+            if (deviceName === HEATING_CHAMBER_DEVICE_LIGHT) {
+                this.chamber.setLightValue(device.value)
+            }
+
+            if (deviceName === HEATING_CHAMBER_DEVICE_FAN) {
+                this.chamber.setFanValue(device.value)
+            }
+        })
+    }
+
     emitState() {
-        const state = this.ctx.state.getCurrentState()
-        this.ctx.onStateUpdate(state)
+        const state = this.chamber.state.getCurrentState()
+        this.chamber.onStateUpdate(state)
 
         this.sendMessage(
             createEventHeatingChamberSateMessage({
-                name: this.ctx.config.name,
+                name: this.chamber.config.name,
                 state,
             }),
         )

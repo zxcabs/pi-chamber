@@ -47,7 +47,7 @@ class TemperatureSensorMAX31865 implements ITemperatureSensor {
     }
 
     async release(): Promise<void> {
-        await this.sensor.clearFaults()
+        await this.sensor?.clearFaults()
         this.sensor = undefined
     }
 
