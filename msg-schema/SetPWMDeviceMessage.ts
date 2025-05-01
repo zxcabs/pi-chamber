@@ -1,5 +1,5 @@
 import { z } from 'zod'
-import { Message, type TBaseMessageUUID } from './BaseMessage.ts'
+import { Message } from './BaseMessage.ts'
 import { DeviceNameSchema, DeviceValueSchema, PWMDeviceSchema } from './schemas/Device.ts'
 
 export const NAME_SET_PWM = 'SET_PWM' as const
@@ -34,7 +34,7 @@ export function createRequestSetPWMMessage(payload: TRequestSetPWMPayloadMessage
 }
 
 export function createResponseSetPWMMessage(
-    uid: TBaseMessageUUID,
+    uid: Message.TUid,
     payload: TResponseSetPWMMessagePayload,
 ): TResponseSetPWMMessage {
     return Message.createResponseMessage(uid, NAME_SET_PWM, responseSetPWMMessageSchema, payload)

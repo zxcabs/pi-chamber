@@ -8,13 +8,17 @@
     import { Toggle, Grid, Row, Column, Button, ButtonSet } from 'carbon-components-svelte'
     import IconTemperature from '../Icons/IconTemperature.svelte'
 
-    export let chamber: TChamber
-    export let onSetDevicesValue: (deviceValue: TRequestDevice[]) => void
+    interface Props {
+        chamber: TChamber
+        onSetDevicesValue?: (deviceValue: TRequestDevice[]) => void
+        onStartTask?: () => void
+    }
+
+    const { chamber, onSetDevicesValue, onStartTask }: Props = $props()
 
     const chamberName = chamber.config.name
-
-    $: lightStatus = chamber.state.light_status === 'ON'
-    $: fanStatus = chamber.state.fan_status === 'ON'
+    let lightStatus = $derived(chamber.state.light_status === 'ON')
+    let fanStatus = $derived(chamber.state.fan_status === 'ON')
 
     function handleLightChange(e: Event) {
         if (!onSetDevicesValue) return
@@ -24,6 +28,11 @@
     function handleFanChange(e: Event) {
         if (!onSetDevicesValue) return
         onSetDevicesValue([{ chamber: chamberName, name: HEATING_CHAMBER_DEVICE_FAN, value: fanStatus ? 1 : 0 }])
+    }
+
+    function handleStartTask(e: Event) {
+        if (!onStartTask) return
+        onStartTask()
     }
 </script>
 
@@ -56,7 +65,7 @@
     <Row>
         <Column>
             <ButtonSet>
-                <Button>Start</Button>
+                <Button on:click={handleStartTask}>Start</Button>
             </ButtonSet>
         </Column>
     </Row>

@@ -1,7 +1,12 @@
 import EventEmitter from 'node:events'
 import { Message } from '../msg-schema/BaseMessage.ts'
 
-export type TBusMessageType = Message.TTypedName | Message.TTypeRequest | Message.TTypeResponse | Message.TTypeEvent
+export type TBusMessageType =
+    | Message.TTypedName
+    | Message.TTypeRequest
+    | Message.TTypeError
+    | Message.TTypeResponse
+    | Message.TTypeEvent
 
 export default class MessageBus {
     private readonly ee: EventEmitter = new EventEmitter()

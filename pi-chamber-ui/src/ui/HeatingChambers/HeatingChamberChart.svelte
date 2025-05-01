@@ -109,7 +109,6 @@
     })
 
     onMount(() => {
-        console.log('onMount')
         chartRef = new Chart(rootRef, config)
     })
 

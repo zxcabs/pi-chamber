@@ -1,13 +1,19 @@
 import { v4 as randomUUID } from 'uuid'
-import { z, ZodLiteral, type ZodTypeAny } from 'zod'
+import { z } from 'zod'
 import safeJsonParse from '../utils/safeJsonParse.ts'
 
 export namespace Message {
     export const TYPE_REQUEST = 'REQUEST' as const
     export const TYPE_RESPONSE = 'RESPONSE' as const
+    export const TYPE_ERROR = 'ERROR' as const
     export const TYPE_EVENT = 'EVENT' as const
 
-    export const typeSchema = z.union([z.literal(TYPE_REQUEST), z.literal(TYPE_RESPONSE), z.literal(TYPE_EVENT)])
+    export const typeSchema = z.union([
+        z.literal(TYPE_REQUEST),
+        z.literal(TYPE_RESPONSE),
+        z.literal(TYPE_ERROR),
+        z.literal(TYPE_EVENT),
+    ])
     export const nameSchema = z
         .string({
             required_error: 'Message name is required',
@@ -29,7 +35,7 @@ export namespace Message {
             return typeSchema.safeParse(type).success && name !== undefined
         },
         {
-            message: `Stirng must be a "type:name" (type: ${TYPE_REQUEST}|${TYPE_RESPONSE}|${TYPE_EVENT})`,
+            message: `Stirng must be a "type:name" (type: ${TYPE_REQUEST}|${TYPE_RESPONSE}|${TYPE_ERROR}|${TYPE_EVENT})`,
         },
     )
 
@@ -58,12 +64,22 @@ export namespace Message {
         payload: responseMessagePayloadSchema,
     })
 
+    export const errorMessagePayloadSchema = payoadSchema.extend({
+        reason: z.string(),
+    })
+    export const errorMessageSchema = messageSchema.extend({
+        type: z.literal(TYPE_ERROR),
+        ruid: uidSchema,
+        payload: errorMessagePayloadSchema,
+    })
+
     export const eventMessageSchema = messageSchema.extend({
         type: z.literal(TYPE_EVENT),
     })
 
     export type TTypeRequest = typeof TYPE_REQUEST
     export type TTypeResponse = typeof TYPE_RESPONSE
+    export type TTypeError = typeof TYPE_ERROR
     export type TTypeEvent = typeof TYPE_EVENT
     export type TType = z.infer<typeof typeSchema>
     export type TName = z.infer<typeof nameSchema>
@@ -74,15 +90,25 @@ export namespace Message {
     export type TMessage = z.infer<typeof messageSchema>
     export type TRequestMessage = z.infer<typeof requestMessageSchema>
     export type TResponseMessage = z.infer<typeof responseMessageSchema>
+    export type TErrorMessage = z.infer<typeof errorMessageSchema>
     export type TEventMessage = z.infer<typeof eventMessageSchema>
     export type TTypeNameMessage = z.infer<typeof typeNameSchema>
 
+    export type TMessagePayloadSchema = typeof payoadSchema
     export type TMessageSchema = typeof messageSchema
     export type TRequestMessageSchema = typeof requestMessageSchema
+    export type TResponseMessagePayloadSchema = typeof responseMessagePayloadSchema
     export type TResponseMessageSchema = typeof responseMessageSchema
+    export type TErrorMessagePayloadSchema = typeof errorMessagePayloadSchema
+    export type TErrorMessageSchema = typeof errorMessageSchema
     export type TEventMessageSchema = typeof eventMessageSchema
 
-    export type TMessageSchemas = TMessageSchema | TRequestMessageSchema | TResponseMessageSchema | TEventMessageSchema
+    export type TMessageSchemas =
+        | TMessageSchema
+        | TRequestMessageSchema
+        | TResponseMessageSchema
+        | TErrorMessageSchema
+        | TEventMessageSchema
 
     export function createMessage<Type extends TType, Payload extends TPayload, Message extends TMessage = TMessage>(
         type: Type,
@@ -116,6 +142,22 @@ export namespace Message {
     >(requestUID: TUid, name: TName, schema: Schema, payload?: Payload): Message {
         return createMessage(
             TYPE_RESPONSE,
+            name,
+            schema,
+            {
+                ...(payload || {}),
+            },
+            requestUID,
+        )
+    }
+
+    export function createErrorMessage<
+        Message extends TErrorMessage,
+        Schema extends TErrorMessageSchema = TErrorMessageSchema,
+        Payload extends TPayload = TPayload,
+    >(requestUID: TUid, name: TName, schema: Schema, payload?: Payload): Message {
+        return createMessage(
+            TYPE_ERROR,
             name,
             schema,
             {
@@ -163,62 +205,4 @@ export namespace Message {
 
         return safeParseMessage<T>(parsedResult.data, schema)
     }
-}
-
-const BaseMessageTypeSchema = z
-    .string({
-        required_error: 'Message type is required',
-    })
-    .min(1)
-    .describe('Message type should not be empty')
-const BaseMessageUidSchema = z
-    .string({
-        required_error: 'Message type is required',
-    })
-    .uuid()
-    .describe('Message uid should not be empty')
-const BaseMessageTimestampSchema = z.number().finite().describe('Message timestamp')
-const BaseMessagePayoadSchema = z.object({}).nullable().optional().describe('Message payload')
-
-export type TBaseMessageType = z.infer<typeof BaseMessageTypeSchema>
-export type TBaseMessageUUID = z.infer<typeof BaseMessageUidSchema>
-
-export const BaseMessageSchema = z.object({
-    type: BaseMessageTypeSchema,
-    uid: BaseMessageUidSchema,
-    timestamp: BaseMessageTimestampSchema,
-    payload: BaseMessagePayoadSchema,
-})
-
-export type TBaseMessage = z.infer<typeof BaseMessageSchema>
-
-export type SchemaWithType<T extends string> = ZodTypeAny & {
-    shape: { type: ZodLiteral<T> }
-}
-
-export function createMessage<S extends SchemaWithType<T>, T extends string>(
-    schema: S,
-    type: T,
-    payload?: Object | undefined,
-): z.infer<S> {
-    return schema.parse({
-        uid: randomUUID(),
-        type,
-        timestamp: Date.now(),
-        payload,
-    })
-}
-
-export function createResponceMessage<S extends SchemaWithType<T>, T extends string>(
-    schema: S,
-    type: T,
-    uid: TBaseMessageUUID = randomUUID(),
-    payload?: Object | undefined,
-): z.infer<S> {
-    return schema.parse({
-        uid,
-        type,
-        timestamp: Date.now(),
-        payload,
-    })
 }

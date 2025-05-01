@@ -8,9 +8,10 @@
     interface Props {
         chambers: TChamberStore[]
         onSetDevicesValue: (devicesValue: TRequestDevice[]) => void
+        onStartTask?: () => void
     }
 
-    const { chambers = [], onSetDevicesValue }: Props = $props()
+    const { chambers = [], onSetDevicesValue, onStartTask }: Props = $props()
 
     const selectedIndex = $state(0)
     const currentChamber = $derived(chambers[selectedIndex])
@@ -32,7 +33,7 @@
     <Row>
         <Column>
             {#if currentChamber}
-                <Chamber chamber={currentChamber} {onSetDevicesValue} />
+                <Chamber chamber={currentChamber} {onSetDevicesValue} {onStartTask} />
             {/if}
         </Column>
     </Row>

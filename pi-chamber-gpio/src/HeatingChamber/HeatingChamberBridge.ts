@@ -21,6 +21,16 @@ import {
     HEATING_CHAMBER_DEVICE_FAN,
     HEATING_CHAMBER_DEVICE_LIGHT,
 } from '../../../msg-schema/schemas/HeatingChamberState.ts'
+import {
+    NAME as NAME_START_SHEDULER_TASK,
+    type TRequestMessage as TRequesStartShedulerTasktMessage,
+    createErrorMessage as createErrorStartShedulerTaskMessage,
+} from '../../../msg-schema/StartShedulerTask.ts'
+import {
+    NAME as NAME_STOP_SHEDULER_TASK,
+    type TRequestMessage as TRequesStopShedulerTasktMessage,
+    createErrorMessage as createErrorStopShedulerTaskMessage,
+} from '../../../msg-schema/StopShedulerTask.ts'
 import type { IGPIODeviceResult } from '../devices/types/IGPIODevice.type.ts'
 import type { IPWMDeviceResult } from '../devices/types/IPWMDevice.type.ts'
 import type { ITemperatureSensorReadResult } from '../devices/types/ITemperatureSensor.type.ts'
@@ -44,6 +54,8 @@ export default class HeatingChamberBridge extends MessageBusBridge {
         this.setupBusNamedResponseListener(NAME_SET_GPIO_DEVICES, this.handleSetGPIODevicesValueMessage)
 
         this.setupBusNamedRequestListener(NAME_SET_HEATING_CHAMBER_DEVICES_VALUE, this.handleSetDevicesValue)
+        this.setupBusNamedRequestListener(NAME_START_SHEDULER_TASK, this.handleStartShedulerTask)
+        this.setupBusNamedRequestListener(NAME_STOP_SHEDULER_TASK, this.handleStopShedulerTask)
     }
 
     private handleStatusMessage(message: TResponseStatusMessage | TEventStatusMessage) {
@@ -162,6 +174,22 @@ export default class HeatingChamberBridge extends MessageBusBridge {
                 this.chamber.setFanValue(device.value)
             }
         })
+    }
+
+    private handleStartShedulerTask(message: TRequesStartShedulerTasktMessage) {
+        this.sendMessage(
+            createErrorStartShedulerTaskMessage(message.uid, {
+                reason: 'Should implement',
+            }),
+        )
+    }
+
+    private handleStopShedulerTask(message: TRequesStopShedulerTasktMessage) {
+        this.sendMessage(
+            createErrorStopShedulerTaskMessage(message.uid, {
+                reason: 'Should implement',
+            }),
+        )
     }
 
     emitState() {

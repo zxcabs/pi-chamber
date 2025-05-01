@@ -8,9 +8,10 @@
     interface Props {
         chamber: TChamberStore
         onSetDevicesValue: (deviceValue: TRequestDevice[]) => void
+        onStartTask?: () => void
     }
 
-    const { chamber, onSetDevicesValue }: Props = $props()
+    const { chamber, onSetDevicesValue, onStartTask }: Props = $props()
 
     const chart = chamber.chart
 </script>
@@ -22,7 +23,7 @@
                 <HeatingChamberChart {chart} />
             </Column>
             <Column>
-                <HeatingChamerParams chamber={$chamber} {onSetDevicesValue} />
+                <HeatingChamerParams chamber={$chamber} {onSetDevicesValue} {onStartTask} />
             </Column>
         </Row>
     </Grid>

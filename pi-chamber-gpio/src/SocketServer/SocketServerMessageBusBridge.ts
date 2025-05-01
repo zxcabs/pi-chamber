@@ -20,9 +20,21 @@ import {
     NAME as NAME_SET_HEATING_CHAMBER_DEVICES_VALUE,
     requestMessageSchema as requestSetHeatingChamberDevicesValue,
 } from '../../../msg-schema/SetHeatingChamberDevicesValue.ts'
+import {
+    NAME as NAME_START_SHEDULER_TASK,
+    requestMessageSchema as requestStartShedulerTaskMessageSchema,
+} from '../../../msg-schema/StartShedulerTask.ts'
+import {
+    NAME as NAME_STOP_SHEDULER_TASK,
+    requestMessageSchema as requestStopShedulerTaskMessageSchema,
+} from '../../../msg-schema/StopShedulerTask.ts'
 
 export default class SocketServerEventBridge extends MessageBusBridge {
-    private readonly socketMessageTypes: TBusMessageType[] = [Message.TYPE_RESPONSE, Message.TYPE_EVENT]
+    private readonly socketMessageTypes: TBusMessageType[] = [
+        Message.TYPE_RESPONSE,
+        Message.TYPE_ERROR,
+        Message.TYPE_EVENT,
+    ]
     private readonly requestMessageMap: Record<string, Message.TRequestMessageSchema> = {
         [NAME_PING]: pingMessageSchema,
         [NAME_STATUS]: requestStatusMessageSchema,
@@ -31,6 +43,8 @@ export default class SocketServerEventBridge extends MessageBusBridge {
         [NAME_HEATING_CHAMBERS]: requestHeatingChambersSchema,
         [NAME_SET_GPIO_DEVICES_VALUE]: requestSetGPIODevisesSchema,
         [NAME_SET_HEATING_CHAMBER_DEVICES_VALUE]: requestSetHeatingChamberDevicesValue,
+        [NAME_START_SHEDULER_TASK]: requestStartShedulerTaskMessageSchema,
+        [NAME_STOP_SHEDULER_TASK]: requestStopShedulerTaskMessageSchema,
     }
 
     constructor(
