@@ -1,25 +1,30 @@
 <script lang="ts">
     import { Column, ContentSwitcher, Grid, Row, Switch } from 'carbon-components-svelte'
-    import type { TChamber } from 'src/stores/chambers'
+    import type { TChamberStore } from 'src/stores/chamber'
     import Chamber from './HeatingChamber.svelte'
     import type { TRequestDevice } from '../../../../msg-schema/SetHeatingChamberDevicesValue'
+    import { get } from 'svelte/store'
 
-    export let chambers: TChamber[]
-    export let onSetDevicesValue: (devicesValue: TRequestDevice[]) => void
+    interface Props {
+        chambers: TChamberStore[]
+        onSetDevicesValue: (devicesValue: TRequestDevice[]) => void
+    }
 
-    let selectedIndex = 0
+    const { chambers = [], onSetDevicesValue }: Props = $props()
 
-    $: currentChamber = chambers?.length && chambers[selectedIndex]
-    $: isShowSwitcher = chambers?.length > 1
+    const selectedIndex = $state(0)
+    const currentChamber = $derived(chambers[selectedIndex])
+    const isShowSwitcher = $derived(chambers.length > 1)
+    const chamberNames = $derived(chambers.map(chamberStore => get(chamberStore).config.name))
 </script>
 
 <Grid noGutter>
     {#if isShowSwitcher}
         <Row>
             <Column>
-                <ContentSwitcher bind:selectedIndex>
-                    {#each chambers as chamber (`${chamber.config.name}`)}
-                        <Switch text={chamber.config.name}></Switch>
+                <ContentSwitcher {selectedIndex}>
+                    {#each chamberNames as name (`${name}`)}
+                        <Switch text={name}></Switch>
                     {/each}
                 </ContentSwitcher>
             </Column>

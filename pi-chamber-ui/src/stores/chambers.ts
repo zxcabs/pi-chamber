@@ -1,6 +1,4 @@
-import { writable } from 'svelte/store'
-import type { Writable } from 'svelte/store'
-import type { IHeatingChamberResult } from '../../../pi-chamber-gpio/src/HeatingChamber/HeatingChamber.type'
+import { writable, type Writable } from 'svelte/store'
 import { Message } from '../../../msg-schema/BaseMessage'
 import {
     NAME_HEATING_CHAMBERS,
@@ -8,43 +6,41 @@ import {
     type TResponseHeatingChambersMessage,
 } from '../../../msg-schema/HeatingChamberMessage'
 import createStoreMessageHandler from '../utils/createStoreMessageHandler'
-import type { THeatingChamberCurrentState } from '../../../pi-chamber-gpio/src/HeatingChamber/HeatingChamberState'
+import type { IStoreWithMessageHandler, TMessageHandler } from './store'
+import createHeatingChamberStore, { type TChamberStore } from './chamber'
 
-export type TChamber = IHeatingChamberResult
-export type TStoreChambers = Writable<TChamber[]>
+export type TChambersStore = IStoreWithMessageHandler & Writable<TChamberStore[]> & {}
 
-export const chambers: TStoreChambers = writable([])
+export default function createStore(): TChambersStore {
+    const store = writable<TChamberStore[]>()
 
-const updateChamberState = (name: string, newSate: THeatingChamberCurrentState) => (currentChambers: TChamber[]) => {
-    const index = currentChambers.findIndex(d => d.config.name === name)
+    const handlers: TMessageHandler[] = [
+        createStoreMessageHandler<TResponseHeatingChambersMessage>(
+            `${Message.TYPE_RESPONSE}:${NAME_HEATING_CHAMBERS}`,
+            message => {
+                store.set(message.payload.heating_chambers?.map(chamber => createHeatingChamberStore(chamber)))
+            },
+        ),
 
-    if (index !== -1 && currentChambers[index].state.updateAt <= newSate.updateAt) {
-        return [
-            ...currentChambers.slice(0, index),
-            { ...currentChambers[index], state: newSate },
-            ...currentChambers.slice(index + 1),
-        ]
+        createStoreMessageHandler<TEventHeatingChamberState>(
+            `${Message.TYPE_EVENT}:${NAME_HEATING_CHAMBERS}`,
+            message => {
+                store.update(chambers =>
+                    chambers.map(chamberStore => {
+                        chamberStore.updateByName(message.payload)
+                        return chamberStore
+                    }),
+                )
+            },
+        ),
+    ]
+
+    const handleMessage: TMessageHandler = message => {
+        handlers.forEach(handler => handler(message))
     }
-    return currentChambers
-}
 
-const handleSingleChamerStateUpdate = (name: string, newSate: THeatingChamberCurrentState) => {
-    chambers.update(updateChamberState(name, newSate))
-}
-
-const handlers = [
-    createStoreMessageHandler<TResponseHeatingChambersMessage>(
-        `${Message.TYPE_RESPONSE}:${NAME_HEATING_CHAMBERS}`,
-        message => {
-            chambers.set([...message.payload.heating_chambers])
-        },
-    ),
-
-    createStoreMessageHandler<TEventHeatingChamberState>(`${Message.TYPE_EVENT}:${NAME_HEATING_CHAMBERS}`, message => {
-        handleSingleChamerStateUpdate(message.payload.name, message.payload.state as THeatingChamberCurrentState)
-    }),
-]
-
-export const handleMessage = (message: Message.TMessage) => {
-    handlers.forEach(handler => handler(message))
+    return {
+        ...store,
+        handleMessage,
+    }
 }

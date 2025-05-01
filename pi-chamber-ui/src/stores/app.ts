@@ -1,22 +1,25 @@
-import { writable } from 'svelte/store'
-import type { Writable } from 'svelte/store'
-import { devices, handleMessage as devicesHandler } from './devices'
-import type { Message } from '../../../msg-schema/BaseMessage'
-import { chambers, handleMessage as chambersHandler } from './chambers'
+import createDevicesStore, { type TDevicesStore } from './devices'
+import createChambersStore, { type TChambersStore } from './chambers'
+import type { IStoreWithMessageHandler, TMessageHandler } from './store'
 
-export interface IAppStore {
-    devices: typeof devices
-    chambers: typeof chambers
+export type TAppStore = IStoreWithMessageHandler & {
+    devices: IStoreWithMessageHandler & TDevicesStore
+    chambers: IStoreWithMessageHandler & TChambersStore
+    handleMessage: TMessageHandler
 }
 
-export type TAppStore = Writable<IAppStore>
+export default function createStore(): TAppStore {
+    const devicesStore = createDevicesStore()
+    const chambersStore = createChambersStore()
 
-export const appStore: TAppStore = writable<IAppStore>({
-    devices: devices,
-    chambers: chambers,
-})
+    const handleMessage: TMessageHandler = message => {
+        devicesStore.handleMessage(message)
+        chambersStore.handleMessage(message)
+    }
 
-export const handleMessage = (message: Message.TMessage) => {
-    devicesHandler(message)
-    chambersHandler(message)
+    return {
+        devices: devicesStore,
+        chambers: chambersStore,
+        handleMessage,
+    }
 }

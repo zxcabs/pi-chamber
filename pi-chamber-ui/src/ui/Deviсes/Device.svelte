@@ -1,19 +1,20 @@
 <script lang="ts">
     import Icon from '@iconify/svelte'
-    import type { TBaseDevice } from '../../../../msg-schema/schemas/Device.ts'
     import { EDeviceTypes } from '../../../../pi-chamber-gpio/src/devices/types/IBaseDeviceResult.types.js'
+    import type { TDevice, TDeviceStore } from '../../stores/device.js'
+    import { get } from 'svelte/store'
 
     const ICONS: Record<string, string> = {
         [EDeviceTypes.TemperatureSensor]: 'fluent:temperature-16-regular',
         [EDeviceTypes.GPIO]: 'fluent:lightbulb-16-regular',
     }
 
-    export let device: TBaseDevice
-    export let onclick: ((device: TBaseDevice) => void) | undefined = undefined
+    export let device: TDeviceStore
+    export let onclick: ((device: TDevice) => void) | undefined = undefined
 
     function handleClick() {
         if (onclick) {
-            onclick(device)
+            onclick(get(device))
         }
     }
 
@@ -30,11 +31,11 @@
     role="button"
     tabindex="0"
     class="device"
-    aria-label={`Device ${device.name || 'unknown'}`}
+    aria-label={`Device ${$device.name || 'unknown'}`}
 >
-    <div><Icon icon={ICONS[device.type] || ''} /></div>
-    <div>{device.name}</div>
-    <div>{device.value}</div>
+    <div><Icon icon={ICONS[$device.type] || ''} /></div>
+    <div>{$device.name}</div>
+    <div>{$device.value}</div>
 </div>
 
 <style>

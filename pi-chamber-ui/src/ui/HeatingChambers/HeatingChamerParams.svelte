@@ -1,5 +1,5 @@
 <script lang="ts">
-    import type { TChamber } from 'src/stores/chambers'
+    import type { TChamber } from 'src/stores/chamber'
     import type { TRequestDevice } from '../../../../msg-schema/SetHeatingChamberDevicesValue'
     import {
         HEATING_CHAMBER_DEVICE_FAN,

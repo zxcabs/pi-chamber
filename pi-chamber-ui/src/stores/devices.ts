@@ -1,6 +1,5 @@
-import { writable } from 'svelte/store'
-import type { Writable } from 'svelte/store'
-import type { TBaseDevice } from '../../../msg-schema/schemas/Device'
+import { derived, writable } from 'svelte/store'
+import type { Writable, Readable } from 'svelte/store'
 import { Message } from '../../../msg-schema/BaseMessage'
 import { NAME_STATUS, type TResponseStatusMessage } from '../../../msg-schema/StatusMessage'
 import createStoreMessageHandler from '../utils/createStoreMessageHandler'
@@ -13,56 +12,91 @@ import {
     NAME as NAME_SET_GPIO_DEVICES,
     type TResponseMessage as TResponseSetGPIODevicesMessage,
 } from '../../../msg-schema/SetGPIODevicesValueMessage'
+import type { IStoreWithMessageHandler, TMessageHandler } from './store'
+import createDeviceStore, { type TDevice, type TDeviceStore } from './device'
 
-export type TDevice = TBaseDevice
-export type TDevices = Writable<TDevice[]>
-export const devices: TDevices = writable([])
-
-const updateDevice =
-    <T extends TDevice>(newDevice: T) =>
-    (currentDevices: TDevice[]) => {
-        const index = currentDevices.findIndex(d => d.name === newDevice.name)
-
-        if (index !== -1 && currentDevices[index].time <= newDevice.time) {
-            return [...currentDevices.slice(0, index), newDevice, ...currentDevices.slice(index + 1)]
-        }
-
-        return currentDevices
-    }
-
-const handleSingleDeviceUpdate = <T extends TDevice>(device: T) => {
-    devices.update(updateDevice(device))
+type TDeviceListStore = Writable<TDeviceStore[]> & {
+    updateValue: (device: TDevice) => void
 }
 
-const handlers = [
-    createStoreMessageHandler<TResponseStatusMessage>(`${Message.TYPE_RESPONSE}:${NAME_STATUS}`, message => {
-        const { temperature_sensors = [], gpio_devices = [], pwm_devices = [] } = message.payload
-        devices.set([...temperature_sensors, ...gpio_devices, ...pwm_devices])
-    }),
-    createStoreMessageHandler<TResponseStatusMessage>(`${Message.TYPE_EVENT}:${NAME_STATUS}`, message => {
-        const { temperature_sensors = [], gpio_devices = [], pwm_devices = [] } = message.payload
-        const devicesStatus = [...temperature_sensors, ...gpio_devices, ...pwm_devices]
+const createDevicesStore = (): TDeviceListStore => {
+    const store = writable<TDeviceStore[]>()
 
-        devices.update(current => devicesStatus.reduce((acc, device) => updateDevice(device)(acc), current))
-    }),
-    createStoreMessageHandler<TResponseSetGPIODevicesMessage>(
-        `${Message.TYPE_RESPONSE}:${NAME_SET_GPIO_DEVICES}`,
-        message => {
-            const { devices } = message.payload
+    const updateValue = (device: TDevice) => {
+        store.update((currentDevices = []) => {
+            return currentDevices.map(currentDeviceStore => {
+                currentDeviceStore.updateByName(device)
+                return currentDeviceStore
+            })
+        })
+    }
 
-            devices.forEach(device => handleSingleDeviceUpdate(device))
-        },
-    ),
+    return {
+        ...store,
+        updateValue,
+    }
+}
 
-    createStoreMessageHandler<TResponseToggleGPIODeviceMessage>(
-        `${Message.TYPE_RESPONSE}:${NAME_TOGGLE_GPIO_DEVICE}`,
-        message => handleSingleDeviceUpdate(message.payload.device),
-    ),
-    createStoreMessageHandler<TResponseSetPWMMessage>(`${Message.TYPE_RESPONSE}:${NAME_SET_PWM}`, message =>
-        handleSingleDeviceUpdate(message.payload.device),
-    ),
-]
+export type TDevicesStore = IStoreWithMessageHandler &
+    Readable<TDeviceStore[]> & {
+        temperatureSensors: TDeviceListStore
+        gpioDevices: TDeviceListStore
+        pwmDevices: TDeviceListStore
+    }
 
-export const handleMessage = (message: Message.TMessage) => {
-    handlers.forEach(handler => handler(message))
+export default function createStore(): TDevicesStore {
+    const temperatureSensors = createDevicesStore()
+    const gpioDevices = createDevicesStore()
+    const pwmDevices = createDevicesStore()
+
+    const devices = derived([temperatureSensors, gpioDevices, pwmDevices], ([$tsensor = [], $gpio = [], $pwm = []]) => [
+        ...$tsensor,
+        ...$gpio,
+        ...$pwm,
+    ])
+
+    const handlers: TMessageHandler[] = [
+        createStoreMessageHandler<TResponseStatusMessage>(`${Message.TYPE_RESPONSE}:${NAME_STATUS}`, message => {
+            const { temperature_sensors = [], gpio_devices = [], pwm_devices = [] } = message.payload
+
+            temperatureSensors.set(temperature_sensors.map(sensor => createDeviceStore(sensor)))
+            gpioDevices.set(gpio_devices.map(gpio => createDeviceStore(gpio)))
+            pwmDevices.set(pwm_devices.map(pwm => createDeviceStore(pwm)))
+        }),
+        createStoreMessageHandler<TResponseStatusMessage>(`${Message.TYPE_EVENT}:${NAME_STATUS}`, message => {
+            const { temperature_sensors = [], gpio_devices = [], pwm_devices = [] } = message.payload
+
+            temperature_sensors.forEach(newDevice => temperatureSensors.updateValue(newDevice))
+            gpio_devices.forEach(newDevice => gpioDevices.updateValue(newDevice))
+            pwm_devices.forEach(newDevice => pwmDevices.updateValue(newDevice))
+        }),
+        createStoreMessageHandler<TResponseSetGPIODevicesMessage>(
+            `${Message.TYPE_RESPONSE}:${NAME_SET_GPIO_DEVICES}`,
+            message => {
+                const { devices } = message.payload
+
+                devices.forEach(newDevice => gpioDevices.updateValue(newDevice))
+            },
+        ),
+
+        createStoreMessageHandler<TResponseToggleGPIODeviceMessage>(
+            `${Message.TYPE_RESPONSE}:${NAME_TOGGLE_GPIO_DEVICE}`,
+            message => gpioDevices.updateValue(message.payload.device),
+        ),
+        createStoreMessageHandler<TResponseSetPWMMessage>(`${Message.TYPE_RESPONSE}:${NAME_SET_PWM}`, message =>
+            pwmDevices.updateValue(message.payload.device),
+        ),
+    ]
+
+    const handleMessage: TMessageHandler = message => {
+        handlers.forEach(handler => handler(message))
+    }
+
+    return {
+        ...devices,
+        temperatureSensors,
+        gpioDevices,
+        pwmDevices,
+        handleMessage,
+    }
 }

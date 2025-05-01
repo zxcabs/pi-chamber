@@ -1,16 +1,28 @@
 <script lang="ts">
-    import type { TBaseDevice } from '../../../../msg-schema/DeviceStatus.ts'
+    import { get } from 'svelte/store'
+    import type { TDevice, TDeviceStore } from '../../stores/device'
     import Device from './Device.svelte'
 
-    export let devices: TBaseDevice[] = []
-    export let onclick: ((device: TBaseDevice) => void) | undefined = undefined
+    interface Props {
+        devices: TDeviceStore[]
+        onclick: ((device: TDevice) => void) | undefined
+    }
+
+    const { devices, onclick }: Props = $props()
+
+    const keys = $derived(
+        devices?.map(deviceStore => {
+            const { name, type } = get(deviceStore)
+            return `${name}_${type}`
+        }),
+    )
 </script>
 
 <div>
     <h2>Devices:</h2>
 
     <div class="devices">
-        {#each devices as device (`${device.type}_${device.name}`)}
+        {#each devices as device, index (keys[index])}
             <Device {device} {onclick} />
         {/each}
     </div>

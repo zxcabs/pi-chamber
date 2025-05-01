@@ -1,14 +1,14 @@
 <script lang="ts">
     import { get } from 'svelte/store'
     import Devices from '../ui/Deviсes/Devices.svelte'
-    import { devices as devicesStore } from '../stores/devices'
-    import type { TBaseDevice } from '../../../msg-schema/schemas/Device'
     import { EDeviceTypes } from '../../../pi-chamber-gpio/src/devices/types/IBaseDeviceResult.types'
     import { setPWM, toggleDevice, setGPOIdevives } from '../actions/devices'
     import type { TGPIOValue } from '../../../pi-chamber-gpio/src/devices/types/IGPIODevice.type'
     import { Button } from 'carbon-components-svelte'
+    import { devices as devicesStore } from '../store'
+    import type { TDevice } from '../stores/device'
 
-    const handleClickDevice = (device: TBaseDevice) => {
+    const handleClickDevice = (device: TDevice) => {
         if (device.type === EDeviceTypes.GPIO) {
             toggleDevice(device)
         }
@@ -20,14 +20,15 @@
     }
 
     const handleClickToggleAllGPIO = () => {
-        const devices = get(devicesStore)
+        const gpioDevicesStore = get(devicesStore.gpioDevices)
 
-        const gpioValues = devices
-            .filter(device => device.type === EDeviceTypes.GPIO && device.name.includes('led'))
-            .map(led => ({
+        const gpioValues = gpioDevicesStore?.map(ledStore => {
+            const led = get(ledStore)
+            return {
                 name: led.name,
                 value: (led.value ^ 1) as TGPIOValue,
-            }))
+            }
+        })
 
         setGPOIdevives(gpioValues)
     }

@@ -1,14 +1,14 @@
 import { mount } from 'svelte'
 import App from './App.svelte'
 import WS from './WS'
-import { handleMessage as appHandler } from './stores/app'
 import { createRequestStatusMessage } from '../../msg-schema/StatusMessage'
 import { getHeatingChambers } from './actions/chambers'
+import appStore from './store'
 ;(async () => {
     const ws = WS.getInstance()
     await ws.connect()
 
-    ws.registerStoreHandler(appHandler)
+    ws.registerStoreHandler(appStore.handleMessage)
     ws.send(createRequestStatusMessage())
 
     getHeatingChambers()

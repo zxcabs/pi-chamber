@@ -1,30 +1,28 @@
 <script lang="ts">
-    import type { TChamber } from 'src/stores/chambers'
+    import type { TChamberStore } from 'src/stores/chamber'
     import { Grid, Row, Column, Tile } from 'carbon-components-svelte'
     import type { TRequestDevice } from '../../../../msg-schema/SetHeatingChamberDevicesValue'
-    import Chart from '../Chart/Chart.svelte'
+    import HeatingChamberChart from './HeatingChamberChart.svelte'
     import HeatingChamerParams from './HeatingChamerParams.svelte'
 
-    export let chamber: TChamber
-    export let onSetDevicesValue: (deviceValue: TRequestDevice[]) => void
+    interface Props {
+        chamber: TChamberStore
+        onSetDevicesValue: (deviceValue: TRequestDevice[]) => void
+    }
 
-    const now = Date.now()
+    const { chamber, onSetDevicesValue }: Props = $props()
 
-    const charData = new Array(26).fill(0).map((val, i, arr) => ({
-        group: i >= 13 ? 'Current temp' : 'Target temp',
-        date: i >= 13 ? now + (i - 13) * 5000 : now + i * 5000,
-        value: Math.random() * 200,
-    }))
+    const chart = chamber.chart
 </script>
 
 <Tile>
     <Grid>
         <Row>
             <Column aspectRatio="2x1">
-                <Chart data={charData} />
+                <HeatingChamberChart {chart} />
             </Column>
             <Column aspectRatio="2x1">
-                <HeatingChamerParams {chamber} {onSetDevicesValue} />
+                <HeatingChamerParams chamber={$chamber} {onSetDevicesValue} />
             </Column>
         </Row>
     </Grid>
