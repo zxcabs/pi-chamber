@@ -81,25 +81,25 @@ export class PWMDevice implements IPWMDevice {
             await this.gpioWrite(1)
             const startTimeWriteOnDt = Date.now() - startTimeWriteOn
 
-            this.setSavedTimeout(async () => {
+            this.setSafeTimeout(async () => {
                 const startTimeWriteOff = Date.now()
                 await this.gpioWrite(0)
                 const startTimeWriteOffDt = Date.now() - startTimeWriteOff
 
-                this.setSavedTimeout(() => {
+                this.setSafeTimeout(() => {
                     this.isRunning = false
                     this.execute()
                 }, offTime - startTimeWriteOffDt)
             }, onTime - startTimeWriteOnDt)
         } else {
-            this.setSavedTimeout(() => {
+            this.setSafeTimeout(() => {
                 this.isRunning = false
                 this.execute()
             }, offTime)
         }
     }
 
-    private setSavedTimeout(cb: () => void, time: number) {
+    private setSafeTimeout(cb: () => void, time: number) {
         if (!this.isRunning) return
 
         if (time <= 0) {
