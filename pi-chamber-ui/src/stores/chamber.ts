@@ -15,10 +15,11 @@ export type TChamber = IHeatingChamberResult
 export type TChamberState = TEventHeatingChamberStatePayload
 export type TChamberStore = IStoreUpdateDeviceByName<TChamberState> &
     Writable<TChamber> & {
+        name: string
         chart: TChamberChartStore
     }
 
-export default function createStore(initialValue?: TChamber): TChamberStore {
+export default function createStore(initialValue: TChamber): TChamberStore {
     const store = writable<TChamber>(initialValue)
     const chart = createChartStore<TChamberChartItem>()
 
@@ -49,6 +50,7 @@ export default function createStore(initialValue?: TChamber): TChamberStore {
     }
 
     return {
+        name: initialValue.config.name,
         ...store,
         chart,
         updateByName,

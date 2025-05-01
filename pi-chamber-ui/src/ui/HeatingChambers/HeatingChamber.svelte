@@ -18,10 +18,10 @@
 <Tile>
     <Grid>
         <Row>
-            <Column aspectRatio="2x1">
+            <Column>
                 <HeatingChamberChart {chart} />
             </Column>
-            <Column aspectRatio="2x1">
+            <Column>
                 <HeatingChamerParams chamber={$chamber} {onSetDevicesValue} />
             </Column>
         </Row>

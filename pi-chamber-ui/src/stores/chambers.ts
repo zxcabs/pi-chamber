@@ -12,13 +12,21 @@ import createHeatingChamberStore, { type TChamberStore } from './chamber'
 export type TChambersStore = IStoreWithMessageHandler & Writable<TChamberStore[]> & {}
 
 export default function createStore(): TChambersStore {
-    const store = writable<TChamberStore[]>()
+    const store = writable<TChamberStore[]>([])
 
     const handlers: TMessageHandler[] = [
         createStoreMessageHandler<TResponseHeatingChambersMessage>(
             `${Message.TYPE_RESPONSE}:${NAME_HEATING_CHAMBERS}`,
             message => {
-                store.set(message.payload.heating_chambers?.map(chamber => createHeatingChamberStore(chamber)))
+                store.update(current => {
+                    const newChambers = message.payload.heating_chambers?.filter(
+                        chamber => !current?.find(currentChamber => currentChamber.name === chamber.config.name),
+                    )
+
+                    if (newChambers?.length === 0) return current
+
+                    return current.concat(newChambers.map(chamber => createHeatingChamberStore(chamber)))
+                })
             },
         ),
 

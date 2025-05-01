@@ -42,7 +42,7 @@ export class PWMDevice implements IPWMDevice {
 
     async write(value: TPWMValue): Promise<IPWMDeviceResult> {
         this.setPWM(value)
-        await this.stopExecute()
+        this.stopExecute()
         this.execute()
 
         return {
@@ -67,6 +67,8 @@ export class PWMDevice implements IPWMDevice {
     }
 
     private async execute(): Promise<void> {
+        if (this.isRunning) return
+
         const executeTime = 1000 / this.pwmFrequency
         const dutyCycle = this.currentValue / this.pwmResolution
         const onTime = Math.floor(dutyCycle * executeTime)
@@ -84,10 +86,16 @@ export class PWMDevice implements IPWMDevice {
                 await this.gpioWrite(0)
                 const startTimeWriteOffDt = Date.now() - startTimeWriteOff
 
-                this.setSavedTimeout(() => this.execute(), offTime - startTimeWriteOffDt)
+                this.setSavedTimeout(() => {
+                    this.isRunning = false
+                    this.execute()
+                }, offTime - startTimeWriteOffDt)
             }, onTime - startTimeWriteOnDt)
         } else {
-            this.pwmTimerId = setTimeout(() => this.execute(), offTime)
+            this.setSavedTimeout(() => {
+                this.isRunning = false
+                this.execute()
+            }, offTime)
         }
     }
 

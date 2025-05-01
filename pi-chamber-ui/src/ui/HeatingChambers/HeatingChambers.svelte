@@ -15,7 +15,6 @@
     const selectedIndex = $state(0)
     const currentChamber = $derived(chambers[selectedIndex])
     const isShowSwitcher = $derived(chambers.length > 1)
-    const chamberNames = $derived(chambers.map(chamberStore => get(chamberStore).config.name))
 </script>
 
 <Grid noGutter>
@@ -23,8 +22,8 @@
         <Row>
             <Column>
                 <ContentSwitcher {selectedIndex}>
-                    {#each chamberNames as name (`${name}`)}
-                        <Switch text={name}></Switch>
+                    {#each chambers as chamber (`${chamber.name}`)}
+                        <Switch text={chamber.name}></Switch>
                     {/each}
                 </ContentSwitcher>
             </Column>
