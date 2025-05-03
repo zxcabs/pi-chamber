@@ -91,7 +91,7 @@
                 (acc, item) => {
                     acc.labels.push(item.time)
                     acc.datasets[0].push(item.current_temperature)
-                    acc.datasets[1].push(item.heaterValue)
+                    acc.datasets[1].push(item.target_temperature)
 
                     return acc
                 },

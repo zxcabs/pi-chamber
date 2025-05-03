@@ -2,7 +2,7 @@ import { Socket } from 'node:net'
 import type { TConfig } from '../../config-reader/readConfig.types.ts'
 import callbackAsyncWrapper from '../../utils/callbackAsyncWrapper.ts'
 import EventEmitter from 'node:events'
-import { Message, type TBaseMessage } from '../../msg-schema/BaseMessage.ts'
+import { Message } from '../../msg-schema/BaseMessage.ts'
 import { createPingMessage, type TPingMessage } from '../../msg-schema/PingMessage.ts'
 import { NAME_PONG, type TPongMessage } from '../../msg-schema/PongMessage.ts'
 import safeJsonParse from '../../utils/safeJsonParse.ts'
@@ -27,7 +27,7 @@ export default class PIChamberGPIOClient extends EventEmitter {
         }
     }
 
-    async sendMessage(msg: TBaseMessage) {
+    async sendMessage(msg: Message.TMessage) {
         await this.send(JSON.stringify(msg) + '\n')
     }
 
@@ -63,6 +63,7 @@ export default class PIChamberGPIOClient extends EventEmitter {
         this.client.on('end', () => {
             console.log('PIChamberGPIOClient connection end')
             clearTimeout(this.reconnectTimeoutId)
+            //   this.client.removeAllListeners()
 
             this.reconnectTimeoutId = setTimeout(async () => {
                 await this.connect()
@@ -78,7 +79,7 @@ export default class PIChamberGPIOClient extends EventEmitter {
 
             if (hadError) {
                 clearTimeout(this.reconnectTimeoutId)
-
+                // this.client.removeAllListeners()
                 this.reconnectTimeoutId = setTimeout(async () => {
                     await this.connect()
                 }, this.reconnectMS)
@@ -91,7 +92,7 @@ export default class PIChamberGPIOClient extends EventEmitter {
     }
 
     async stop() {
-        this.removeAllListeners()
+        this?.removeAllListeners()
         clearTimeout(this.reconnectTimeoutId)
         clearTimeout(this.pingTimeoutId)
         this.client.destroy()

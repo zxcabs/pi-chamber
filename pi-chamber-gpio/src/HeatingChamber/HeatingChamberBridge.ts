@@ -1,10 +1,13 @@
-import type { TResponseSetPWMMessage } from '../../../msg-schema/SetPWMDeviceMessage.ts'
 import {
     NAME_STATUS,
     type TEventStatusMessage,
     type TResponseStatusMessage,
 } from '../../../msg-schema/StatusMessage.ts'
-import { NAME_SET_PWM } from '../../../msg-schema/SetPWMDeviceMessage.ts'
+import { NAME_SET_PWM, type TResponseSetPWMMessage } from '../../../msg-schema/SetPWMDeviceMessage.ts'
+import {
+    NAME as NAME_SET_PWMs,
+    type TResponseMessage as TResponseSetPWMsMessage,
+} from '../../../msg-schema/SetPWMDevicesValueMessage.ts'
 import {
     NAME_TOGGLE_GPIO_DEVICE,
     type TResponseToggleGPIODeviceMessage,
@@ -24,11 +27,15 @@ import {
 import {
     NAME as NAME_START_SHEDULER_TASK,
     type TRequestMessage as TRequesStartShedulerTasktMessage,
+    type TResponsePayload as TResponseStartShedulerTaskPayload,
+    createResponseMessage as createResponseStartShedulerTaskMessage,
     createErrorMessage as createErrorStartShedulerTaskMessage,
 } from '../../../msg-schema/StartShedulerTask.ts'
 import {
     NAME as NAME_STOP_SHEDULER_TASK,
     type TRequestMessage as TRequesStopShedulerTasktMessage,
+    type TResponsePayload as TResponseStopShedulerTaskPayload,
+    createResponseMessage as createResponseStopShedulerTaskMessage,
     createErrorMessage as createErrorStopShedulerTaskMessage,
 } from '../../../msg-schema/StopShedulerTask.ts'
 import type { IGPIODeviceResult } from '../devices/types/IGPIODevice.type.ts'
@@ -38,6 +45,7 @@ import type HeatingChamber from './HeatingChamber.ts'
 import { createEventHeatingChamberSateMessage } from '../../../msg-schema/HeatingChamberMessage.ts'
 import MessageBusBridge from '../../../msg-bus/MessageBusBridge.ts'
 import type MessageBus from '../../../msg-bus/MessageBus.ts'
+import safeAsync from '../../../utils/safeAsync.ts'
 
 export default class HeatingChamberBridge extends MessageBusBridge {
     constructor(
@@ -50,6 +58,7 @@ export default class HeatingChamberBridge extends MessageBusBridge {
 
         this.setupBusNamedResponseListener(NAME_STATUS, this.handleStatusMessage)
         this.setupBusNamedResponseListener(NAME_SET_PWM, this.handleSetPWMMessage)
+        this.setupBusNamedResponseListener(NAME_SET_PWMs, this.handleSetPWMsMessage)
         this.setupBusNamedResponseListener(NAME_TOGGLE_GPIO_DEVICE, this.handleToggleGPIODeviceMessage)
         this.setupBusNamedResponseListener(NAME_SET_GPIO_DEVICES, this.handleSetGPIODevicesValueMessage)
 
@@ -106,12 +115,27 @@ export default class HeatingChamberBridge extends MessageBusBridge {
 
     private handleSetPWMMessage(message: TResponseSetPWMMessage) {
         const heaterDeviceNames = this.chamber.config.heaters
-        const pwmDevicesData = message.payload.device
+        const pwmDevice = message.payload.device
 
         heaterDeviceNames?.forEach(name => {
-            if (pwmDevicesData.name === name) {
-                this.chamber.state.updataHeaterDeviceStatus(pwmDevicesData as IPWMDeviceResult)
+            if (pwmDevice.name === name) {
+                this.chamber.state.updataHeaterDeviceStatus(pwmDevice as IPWMDeviceResult)
             }
+        })
+
+        this.emitState()
+    }
+
+    private handleSetPWMsMessage(message: TResponseSetPWMsMessage) {
+        const heaterDeviceNames = this.chamber.config.heaters
+        const pwmDevices = message.payload.devices
+
+        heaterDeviceNames?.forEach(name => {
+            pwmDevices.forEach(pwmDevice => {
+                if (pwmDevice.name === name) {
+                    this.chamber.state.updataHeaterDeviceStatus(pwmDevice as IPWMDeviceResult)
+                }
+            })
         })
 
         this.emitState()
@@ -176,20 +200,42 @@ export default class HeatingChamberBridge extends MessageBusBridge {
         })
     }
 
-    private handleStartShedulerTask(message: TRequesStartShedulerTasktMessage) {
-        this.sendMessage(
-            createErrorStartShedulerTaskMessage(message.uid, {
-                reason: 'Should implement',
-            }),
-        )
+    private async handleStartShedulerTask(message: TRequesStartShedulerTasktMessage) {
+        const chamberName = this.chamber.name
+
+        if (message.payload.chamber !== chamberName) return
+
+        const result = await safeAsync<TResponseStartShedulerTaskPayload>(this.chamber.sheduler.start(message.payload))
+
+        if (result.success) {
+            this.sendMessage(createResponseStartShedulerTaskMessage(message.uid, result.data))
+        } else {
+            this.sendMessage(
+                createErrorStartShedulerTaskMessage(message.uid, {
+                    chamber: chamberName,
+                    reason: result.error.toString(),
+                }),
+            )
+        }
     }
 
-    private handleStopShedulerTask(message: TRequesStopShedulerTasktMessage) {
-        this.sendMessage(
-            createErrorStopShedulerTaskMessage(message.uid, {
-                reason: 'Should implement',
-            }),
-        )
+    private async handleStopShedulerTask(message: TRequesStopShedulerTasktMessage) {
+        const chamberName = this.chamber.name
+
+        if (message.payload.chamber !== chamberName) return
+
+        const result = await safeAsync<TResponseStopShedulerTaskPayload>(this.chamber.sheduler.stop())
+
+        if (result.success) {
+            this.sendMessage(createResponseStopShedulerTaskMessage(message.uid, result.data))
+        } else {
+            this.sendMessage(
+                createErrorStopShedulerTaskMessage(message.uid, {
+                    chamber: this.chamber.config.name,
+                    reason: result.error.toString(),
+                }),
+            )
+        }
     }
 
     emitState() {

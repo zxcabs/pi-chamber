@@ -19,7 +19,7 @@ export default class HeatingChamberState {
     private updateAt: number = 0
 
     readonly status: THeatingChamberStateStatus = 'OFF'
-    readonly targetTemperature: number = 0
+    public targetTemperature: number = 0
 
     readonly temperatureSensorsStatus: ITemperatureSensorReadResult[] = []
     readonly lightDevices: IGPIODeviceResult[] = []

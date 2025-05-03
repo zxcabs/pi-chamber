@@ -2,7 +2,7 @@ import { z } from 'zod'
 import { DeviceNameSchema, GPIODeviceSchema, GPIODeviceValueSchema } from './schemas/Device.ts'
 import { Message } from './BaseMessage.ts'
 
-export const NAME = 'NAME_SET_GPIO_DEVICES_VALUE' as const
+export const NAME = 'SET_GPIO_DEVICES_VALUE' as const
 
 export const requestDeviceSchema = z.object({
     name: DeviceNameSchema,
@@ -10,7 +10,7 @@ export const requestDeviceSchema = z.object({
 })
 
 export const requestPayloadMessageSchema = Message.payoadSchema.extend({
-    devices: requestDeviceSchema.array(),
+    devices: requestDeviceSchema.array().min(1),
 })
 
 export const requestMessageSchema = Message.requestMessageSchema.extend({
@@ -18,7 +18,7 @@ export const requestMessageSchema = Message.requestMessageSchema.extend({
 })
 
 export const responsePayloadMessageSchema = Message.responseMessagePayloadSchema.extend({
-    devices: GPIODeviceSchema.array(),
+    devices: GPIODeviceSchema.array().min(1),
 })
 
 export const responseMessageSchema = Message.responseMessageSchema.extend({

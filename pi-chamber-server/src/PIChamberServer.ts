@@ -1,4 +1,4 @@
-import type { TBaseMessage } from '../../msg-schema/BaseMessage.ts'
+import { Message } from '../../msg-schema/BaseMessage.ts'
 import type { TConfig } from '../../config-reader/readConfig.types.ts'
 import PIChamberGPIOClient from './PIChamberGPIOClient.ts'
 import WebServer from './WebServer.ts'
@@ -18,7 +18,7 @@ export default class PIChamberServer {
         await this.gpioClient.start()
         await this.webServer.start()
 
-        this.gpioClient.on('messsage', (msg: TBaseMessage) => {
+        this.gpioClient.on('messsage', (msg: Message.TMessage) => {
             this.webServer.broadcast(JSON.stringify(msg))
         })
 
@@ -26,7 +26,7 @@ export default class PIChamberServer {
             console.error(error)
         })
 
-        this.webServer.on('message', (msg: TBaseMessage) => {
+        this.webServer.on('message', (msg: Message.TMessage) => {
             this.gpioClient.sendMessage(msg)
         })
     }

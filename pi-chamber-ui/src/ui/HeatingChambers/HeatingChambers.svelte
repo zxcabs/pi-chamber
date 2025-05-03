@@ -3,12 +3,12 @@
     import type { TChamberStore } from 'src/stores/chamber'
     import Chamber from './HeatingChamber.svelte'
     import type { TRequestDevice } from '../../../../msg-schema/SetHeatingChamberDevicesValue'
-    import { get } from 'svelte/store'
+    import type { TRequestPayload } from '../../../../msg-schema/StartShedulerTask'
 
     interface Props {
         chambers: TChamberStore[]
         onSetDevicesValue: (devicesValue: TRequestDevice[]) => void
-        onStartTask?: () => void
+        onStartTask?: (data: TRequestPayload) => void
     }
 
     const { chambers = [], onSetDevicesValue, onStartTask }: Props = $props()

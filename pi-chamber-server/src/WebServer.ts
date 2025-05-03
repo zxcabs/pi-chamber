@@ -54,9 +54,9 @@ export default class WebServer extends EventEmitter {
 
     async stop() {
         await callbackAsyncWrapper(handler => {
-            this.server.closeAllConnections()
-            this.wss.clients.forEach(client => client.close())
-            this.server.close(handler)
+            this.server?.closeAllConnections()
+            this.wss?.clients?.forEach(client => client.close())
+            this.server?.close(handler)
         })
         this.removeAllListeners()
         this.server = null

@@ -2,7 +2,7 @@ import { z } from 'zod'
 import { Message } from './BaseMessage.ts'
 import { GPIODeviceSchema, PWMDeviceSchema, TemperatureSensorSchema } from './schemas/Device.ts'
 
-export const NAME_STATUS = 'NAME_STATUS' as const
+export const NAME_STATUS = 'STATUS' as const
 
 export const requestStatusMessageSchema = Message.requestMessageSchema.extend({})
 

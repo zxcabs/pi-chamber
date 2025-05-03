@@ -7,11 +7,12 @@
     } from '../../../../msg-schema/schemas/HeatingChamberState'
     import { Toggle, Grid, Row, Column, Button, ButtonSet } from 'carbon-components-svelte'
     import IconTemperature from '../Icons/IconTemperature.svelte'
+    import type { TRequestPayload } from '../../../../msg-schema/StartShedulerTask'
 
     interface Props {
         chamber: TChamber
         onSetDevicesValue?: (deviceValue: TRequestDevice[]) => void
-        onStartTask?: () => void
+        onStartTask?: (data: TRequestPayload) => void
     }
 
     const { chamber, onSetDevicesValue, onStartTask }: Props = $props()
@@ -32,7 +33,17 @@
 
     function handleStartTask(e: Event) {
         if (!onStartTask) return
-        onStartTask()
+        onStartTask({
+            chamber: chamberName,
+            program: {
+                name: 'Default program',
+                intervals: [
+                    { temperature: 30, duration: 30 * 1000 },
+                    { temperature: 35, duration: 30 * 1000 },
+                    { temperature: 45, duration: 30 * 1000 },
+                ],
+            },
+        })
     }
 </script>
 

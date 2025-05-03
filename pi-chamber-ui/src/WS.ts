@@ -1,11 +1,13 @@
 import callbackAsyncWrapper from '../../utils/callbackAsyncWrapper'
 import safeJsonParse from '../../utils/safeJsonParse'
+import { RequestWS } from './RequestWS'
 
 export default class WS {
     private storeHandlers = new Set<Function>()
     private static instance: WS
     private socket?: WebSocket
     private reconnectTimeout: number = 2000
+    public readonly request: RequestWS
 
     static async createConnection(): Promise<WebSocket> {
         return await callbackAsyncWrapper<WebSocket>(handler => {
@@ -35,7 +37,9 @@ export default class WS {
         return WS.instance
     }
 
-    private constructor() {}
+    private constructor() {
+        this.request = new RequestWS(this)
+    }
 
     async connect() {
         try {

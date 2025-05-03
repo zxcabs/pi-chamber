@@ -1,22 +1,31 @@
 import { z } from 'zod'
 import { Message } from './BaseMessage.ts'
+import { heatingProgramSchema } from '../heating-pogram/HeatingProgram.ts'
+import { nameSchema } from './schemas/HeatingChamberState.ts'
 
-export const NAME = 'NAME_START_SHEDULER_TASK' as const
+export const NAME = 'START_SHEDULER_TASK' as const
 
 // Request
-export const requestPayloadSchema = Message.payoadSchema.extend({})
+export const requestPayloadSchema = Message.payoadSchema.extend({
+    chamber: nameSchema,
+    program: heatingProgramSchema,
+})
 export const requestMessageSchema = Message.requestMessageSchema.extend({
     payload: requestPayloadSchema,
 })
 
 // Response
-export const responsePayloadSchema = Message.responseMessagePayloadSchema.extend({})
+export const responsePayloadSchema = Message.responseMessagePayloadSchema.extend({
+    chamber: nameSchema,
+})
 export const responseMessageSchema = Message.responseMessageSchema.extend({
     payload: responsePayloadSchema,
 })
 
 // Error
-export const errorPayloadSchema = Message.errorMessagePayloadSchema.extend({})
+export const errorPayloadSchema = Message.errorMessagePayloadSchema.extend({
+    chamber: nameSchema,
+})
 export const errorMessageSchema = Message.errorMessageSchema.extend({
     payload: errorPayloadSchema,
 })

@@ -4,13 +4,14 @@
     import { setDevicesValue } from '../actions/chambers'
     import { chambers as chambersStore } from '../store'
     import { startTask } from '../actions/sheduler'
+    import type { TRequestPayload } from '../../../msg-schema/StartShedulerTask'
 
     function handleSetDevicesValue(devicesValue: TRequestDevice[]) {
         setDevicesValue(devicesValue)
     }
 
-    function handleStarttask() {
-        startTask()
+    function handleStarttask(data: TRequestPayload) {
+        startTask(data)
     }
 </script>
 

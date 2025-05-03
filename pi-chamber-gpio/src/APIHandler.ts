@@ -7,6 +7,7 @@ import ShutdownHandler from './api/ShutdownHandler.ts'
 import SetPWMHandler from './api/SetPWMHandler.ts'
 import HeatingChambersHandler from './api/HeatingChambersHandler.ts'
 import SetGPIODevicesValueHandler from './api/SetGPIODevicesValueHandler.ts'
+import SetPWMsHandler from './api/SetPWMsHandler.ts'
 
 export default class APIHandler {
     private apiHandlers: IBaseApiHandler[] = []
@@ -20,6 +21,7 @@ export default class APIHandler {
             new ToggleGPIODeviceHandler(this.ctx),
             new ShutdownHandler(this.ctx),
             new SetPWMHandler(this.ctx),
+            new SetPWMsHandler(this.ctx),
             new HeatingChambersHandler(this.ctx),
         ]
     }
