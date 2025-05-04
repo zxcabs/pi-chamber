@@ -38,9 +38,8 @@
             program: {
                 name: 'Default program',
                 intervals: [
-                    { temperature: 30, duration: 30 * 1000 },
-                    { temperature: 35, duration: 30 * 1000 },
-                    { temperature: 45, duration: 30 * 1000 },
+                    { temperature: 40, duration: 300 * 1000 },
+                    { temperature: 50, duration: 300 * 1000 },
                 ],
             },
         })

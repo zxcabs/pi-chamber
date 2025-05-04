@@ -11,12 +11,14 @@ import type { TPWMValue } from '../devices/types/IPWMDevice.type.ts'
 import { createRequestMessage as createRequestSetPWMsMessage } from '../../../msg-schema/SetPWMDevicesValueMessage.ts'
 import safeAsync from '../../../utils/safeAsync.ts'
 import wait from '../../../utils/wait.ts'
+import HeatingChamberPIDController from './HeatingChamberPIDController.ts'
 
 export default class HeatingChamber {
     readonly state: HeatingChamberState
     readonly sheduler: HeatingChamberSheduler
     private ebusBridge: HeatingChamberBridge
     private abortCtrl: AbortController = new AbortController()
+    private pid: HeatingChamberPIDController
 
     constructor(
         readonly config: THeatingChamberConfig,
@@ -25,6 +27,7 @@ export default class HeatingChamber {
         this.state = new HeatingChamberState()
         this.ebusBridge = new HeatingChamberBridge(this, ebus)
         this.sheduler = new HeatingChamberSheduler(this)
+        this.pid = new HeatingChamberPIDController(1.9, 0.03, 31.62)
     }
 
     get name() {
@@ -32,7 +35,6 @@ export default class HeatingChamber {
     }
 
     onStateUpdate(state: THeatingChamberCurrentState) {
-        // TODO: For example
         if (state.heaterValue > 0 && state.fan_status === 'OFF') {
             this.ebusBridge.sendMessage(
                 createRequestToggleGPIOMessage({
@@ -89,18 +91,32 @@ export default class HeatingChamber {
 
     setTemperature(targetTemperature: number) {
         this.state.targetTemperature = targetTemperature
+        this.pid.reset()
+    }
+
+    startAutoTune(setpoint: number, hysteresis: number = 1.0, outputHigh: number = 100, outputLow: number = 0) {
+        this.state.targetTemperature = setpoint
+        this.pid.startAutoTune(setpoint, hysteresis, outputHigh, outputLow)
     }
 
     private async execute() {
         if (this.abortCtrl.signal.aborted) return
 
-        if (this.state.currentTemperature < this.state.targetTemperature) {
-            this.setHeaterValue(100)
-        } else {
-            this.setHeaterValue(0)
+        const { currentTemperature, targetTemperature } = this.state
+
+        let pwmValue = 0
+
+        if (targetTemperature > 0) {
+            if (this.pid.isAutoTuning()) {
+                pwmValue = this.pid.getAutoTuneOutput(targetTemperature, currentTemperature)
+            } else {
+                pwmValue = this.pid.update(targetTemperature, currentTemperature)
+            }
         }
 
-        if (this.state.currentTemperature > this.config.activate_fans_temperature || this.sheduler.running) {
+        this.setHeaterValue(Math.round(pwmValue))
+
+        if (currentTemperature > this.config.activate_fans_temperature || this.sheduler.running) {
             if (this.state.fanStatus === 'OFF') this.setFanValue(1)
         }
 
@@ -112,8 +128,10 @@ export default class HeatingChamber {
     }
 
     async connect(): Promise<void> {
+        //  this.startAutoTune(40, 0)
         this.execute()
     }
+
     async release(): Promise<void> {
         this.abortCtrl.abort()
         await this.sheduler.release()

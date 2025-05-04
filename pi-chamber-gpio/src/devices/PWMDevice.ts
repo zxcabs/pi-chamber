@@ -42,8 +42,8 @@ export class PWMDevice implements IPWMDevice {
 
     async write(value: TPWMValue): Promise<IPWMDeviceResult> {
         this.setPWM(value)
-        this.stopExecute()
-        this.execute()
+        // this.stopExecute()
+        // this.execute()
 
         return {
             type: EDeviceTypes.PWM,

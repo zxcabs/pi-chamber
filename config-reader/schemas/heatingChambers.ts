@@ -25,6 +25,7 @@ export const lightsTimeoutSchema = z
     .number()
     .min(0)
     .default(15 * 60 * 1000)
+export const maxSafeTemperature = z.number().min(0)
 
 export const heatingChamberSchema = z.object({
     name: nameSchema,
@@ -34,6 +35,7 @@ export const heatingChamberSchema = z.object({
     fans: fansSchema,
     activate_fans_temperature: activateFansTemperatureSchema,
     lights_timeout: lightsTimeoutSchema,
+    max_safe_temperature: maxSafeTemperature,
 })
 
 export const heatingChambersSchema = z
